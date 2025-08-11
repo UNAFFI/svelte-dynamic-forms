@@ -1,0 +1,2 @@
+export const FORM_CONTEXT = Symbol('FORM_CONTEXT');
+export const SWAPPABLE_COMPONENTS = Symbol('SWAPPABLE_COMPONENTS');
