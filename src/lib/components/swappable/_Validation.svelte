@@ -24,13 +24,3 @@
 		{validation_error_message}
 	</div>
 {/if}
-
-<style>
-	.validation_component {
-		font-size: 0.75rem; /* 12px */
-		line-height: 1.66;
-		color: #d32f2f; /* Material red for errors */
-		margin-top: 3px;
-		font-family: Roboto, Arial, sans-serif;
-	}
-</style>

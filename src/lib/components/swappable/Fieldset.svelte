@@ -8,11 +8,3 @@
 		<rest.field_component definition={field_definition} />
 	{/each}
 </div>
-
-<style>
-	.fieldset_component {
-		display: flex;
-		flex-direction: column;
-		gap: 12px;
-	}
-</style>

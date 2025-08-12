@@ -60,14 +60,11 @@
 	}
 </script>
 
-{#key rest.data_root[rest.definition.data_key]}
-	<swappable_components.array
-		bind:value={rest.data_root[rest.definition.data_key]}
-		field_component={Field}
-		{add}
-		{remove}
-		{moveDown}
-		{moveUp}
-		{...rest}
-	/>
-{/key}
+<swappable_components.array
+	field_component={Field}
+	{add}
+	{remove}
+	{moveDown}
+	{moveUp}
+	{...rest}
+/>
