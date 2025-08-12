@@ -5,7 +5,7 @@ import Pages from './Pages.svelte';
 import Text from './Text.svelte';
 import _Label from './_Label.svelte';
 import _Validation from './_Validation.svelte';
-import _FieldWrapper from './_FieldWrapper.svelte';
+import _FieldContainer from './_FieldContainer.svelte';
 
 export default {
 	// fieldtypes
@@ -18,5 +18,5 @@ export default {
 	// other
 	_label: _Label,
 	_validation: _Validation,
-	_fieldwrapper: _FieldWrapper
+	_fieldcontainer: _FieldContainer
 };

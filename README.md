@@ -135,11 +135,11 @@ Each field in the `fields` array is an object with the following properties:
 
 ## Swappable Components
 
-You can override default field wrappers, labels, validation messages, etc. by passing a `swappable_components` prop:
+You can override default field containers, labels, validation messages, etc. by passing a `swappable_components` prop:
 
 ```js
-import MyFieldWrapper from './MyFieldWrapper.svelte';
-<Form ... swappable_components={{ _fieldwrapper: MyFieldWrapper }} />
+import MyFieldContainer from './MyFieldContainer.svelte';
+<Form ... swappable_components={{ _fieldcontainer: MyFieldContainer }} />
 ```
 
 ---

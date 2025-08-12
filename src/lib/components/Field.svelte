@@ -262,7 +262,7 @@
 </script>
 
 {#if state_root?.is_conditions_passed === true}
-	<swappable_components._fieldwrapper>
+	<swappable_components._fieldcontainer>
 		<field_config.component bind:state_root bind:data_root definition={formatted_definition} />
-	</swappable_components._fieldwrapper>
+	</swappable_components._fieldcontainer>
 {/if}
