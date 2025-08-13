@@ -17,7 +17,7 @@
 				{
 					name: 'People',
 					fieldtype: 'array',
-					item_config: {
+					array_item_config: {
 						fields: [
 							{
 								fieldtype: 'text',

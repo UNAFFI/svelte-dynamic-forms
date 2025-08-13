@@ -85,7 +85,7 @@ Each field in the `fields` array is an object with the following properties:
 | `placeholder` | `string` | Placeholder text for the field. |
 | `label` | `string` | Label text for the field. Defaults to `name`. |
 | `hide_label` | `boolean` | If true, hides the label. |
-| `item_config` | `FormProps["config"]` | Config for a new entry (for arrays). |
+| `array_item_config` | `FormProps["config"]` | Config for a new entry (for arrays). |
 | `pages` | `FormProps["config"][]` | Config for pages (for `pages` fieldtype). |
 | `custom_component_key` | `string` | Key for a custom field component. |
 

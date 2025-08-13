@@ -42,3 +42,8 @@
 		}}
 	/>
 {/if}
+
+Context:
+<pre>
+	{JSON.stringify(context, null, 2)}
+</pre>

@@ -3,7 +3,7 @@
 	import { getContext } from 'svelte';
 
 	// props
-	let { ...rest } = $props();
+	let { placeholder, label, ...rest } = $props();
 
 	// get context
 	const context = getContext(FORM_CONTEXT);
@@ -18,12 +18,12 @@
 </script>
 
 <div class="text_component">
-	<swappable_components._label {...rest} />
+	<swappable_components._label {label} {...rest} />
 	<input
 		type="text"
 		class={['text_input', is_display_error && 'invalid']}
 		name={rest.definition.name}
-		placeholder={rest.definition.placeholder}
+		{placeholder}
 		bind:value={rest.data_root[rest.definition.data_key]}
 	/>
 	<swappable_components._validation {...rest} />

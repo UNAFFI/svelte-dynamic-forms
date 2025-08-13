@@ -19,7 +19,16 @@
 					name: 'Favorite Color',
 					fieldtype: 'custom',
 					custom_component_key: "_custom1",
-					data_path: "test.nested.path"
+					default: "''",
+					dynamic_context: {
+						color: "data.favorite_color"
+					},
+					validations: [
+						{
+							expression: "dynamic.color = 'Yellow'",
+							error_message: "Color must be Yellow"
+						}
+					]
 				}
 			]
 		},

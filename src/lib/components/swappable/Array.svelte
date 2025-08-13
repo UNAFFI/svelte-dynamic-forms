@@ -12,7 +12,7 @@
 						definition={{
 							name: i.toString(),
 							fieldtype: 'fieldset',
-							fields: rest.definition.item_config?.fields,
+							fields: rest.definition.array_item_config?.fields,
 							parent_data_path: rest.definition.data_path,
 							parent_state_path: rest.definition.state_path
 						}}

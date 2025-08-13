@@ -3,22 +3,19 @@
  */
 
 /**
- * @typedef {object} ValidationCheck
+ * @typedef {object} Validation
  * @property {string} expression - Evaluated whenever the field state params change
  * @property {string} [error_message] - The error message for the validation.
  */
 
 /**
- * @typedef {ValidationCheck[]} Validations - The checks to perform for the validation.
- */
-
-/**
- * @typedef {object} ConditionCheck
+ * @typedef {object} Condition
  * @property {string} expression - Evaluated whenever the field state params change
  */
 
 /**
- * @typedef {ConditionCheck[]} Conditions - The checks to perform for the conditions.
+ * @typedef {object} StateEvaluation
+ * @property {string} expression - Evaluated whenever the field state params change
  */
 
 /**
@@ -27,23 +24,27 @@
  * @property {FieldType} fieldtype - The type of the field.
  * @property {string} [data_path] - The path where the field's value should be written.
  * @property {string} [parent_data_path] - The path where the parent field's value should be written.
- * @property {FieldDefinition[]} [fields] - The child fields of the field.
- * @property {string[]} [state_params] - The parameters used in conditions and validations.
- * @property {Validations} [validations] - The validation for the field.
- * @property {Conditions} [conditions] - The conditions for the field.
  * @property {string} [default] - Expression for the default value of the field.
+ * @property {Record<string, string>} [dynamic_context] - The dynamic data for the field.
+ * @property {FieldDefinition[]} [fields] - The child fields of the field.
+ * @property {Validation[]} [validations] - The validation for the field.
+ * @property {Condition[]} [conditions] - The conditions for the field.
  * @property {boolean} [keep_data_on_conditions_failed] - Whether to keep the data when conditions fail.
  * @property {string} [placeholder] - The placeholder text for the field.
+ * @property {string} [dynamic_placeholder] - Expression for the dynamic placeholder.
  * @property {string} [label] - The label text for the field.
+ * @property {string} [dynamic_label] - Expression for the dynamic label.
  * @property {boolean} [hide_label] - Whether to hide the label for the field.
- * @property {FormProps["config"]} [item_config] - The configuration for a new entry.
+ * @property {string} [content] - The content text for the field.
+ * @property {string} [dynamic_content] - Expression for the dynamic content.
+ * @property {FormProps["config"]} [array_item_config] - The configuration for a new entry.
  * @property {FormProps["config"][]} [pages] - The configuration for the pages.
  * @property {string} [custom_component_key] - The key for the custom component.
  */
 
 /**
- * @typedef {Omit<FieldDefinition, 'data_path' | 'validations' | 'conditions' | 'fields' | 'state_params'> &
- *           Required<Pick<FieldDefinition, 'data_path' | 'validations' | 'conditions' | 'fields' | 'state_params'>>} FieldDefinitionWithRequired
+ * @typedef {Omit<FieldDefinition, 'data_path'> &
+ *           Required<Pick<FieldDefinition, 'data_path'>>} FieldDefinitionWithRequired
  */
 
 /**

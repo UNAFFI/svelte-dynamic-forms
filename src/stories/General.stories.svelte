@@ -66,17 +66,21 @@
 				{
 					name: 'Full Name',
 					fieldtype: 'text',
-					state_params: ['data.full_name'],
+					dynamic_context: { name: 'data.full_name' },
 					validations: [
 						{
-							expression: '$length($trim(params[0])) > 0',
+							expression: '$length($trim(dynamic.name)) > 0',
 							error_message: 'Full Name is required.'
 						},
 						{
-							expression: '$length($trim(params[0])) < 20',
+							expression: '$length($trim(dynamic.name)) < 20',
 							error_message: 'Full Name must be less than 20 characters.'
 						}
 					]
+				},
+				{
+					name: "Won't trigger evaluation",
+					fieldtype: 'text'
 				}
 			]
 		},
@@ -98,10 +102,10 @@
 				{
 					name: 'Age',
 					fieldtype: 'text',
-					state_params: ['data.full_name'],
+					dynamic_context: { name: 'data.full_name' },
 					conditions: [
 						{
-							expression: '$length($trim(params[0])) > 0'
+							expression: '$length($trim(dynamic.name)) > 0'
 						}
 					]
 				}
@@ -127,10 +131,10 @@
 				{
 					name: 'Age',
 					fieldtype: 'text',
-					state_params: ['data.full_name'],
+					dynamic_context: { name: 'data.full_name' },
 					conditions: [
 						{
-							expression: '$length($trim(params[0])) > 0'
+							expression: '$length($trim(dynamic.name)) > 0'
 						}
 					],
 					keep_data_on_conditions_failed: true
@@ -173,5 +177,107 @@
 			]
 		},
 		context: { data: { full_name: 'Frikkie' } }
+	}}
+/>
+
+<Story
+	name="Break Things"
+	args={{
+		config: {
+			fields: [
+				{
+					name: 'Level 1',
+					fieldtype: 'array',
+					array_item_config: {
+						fields: [
+							{
+								name: 'Level 2',
+								fieldtype: 'array',
+								array_item_config: {
+									fields: [
+										{
+											name: 'Level 3',
+											fieldtype: 'fieldset',
+											fields: [
+												{
+													name: 'Full name',
+													fieldtype: 'text'
+												},
+												{
+													name: 'Age',
+													fieldtype: 'text'
+												}
+											]
+										}
+									]
+								}
+							}
+						]
+					}
+				}
+			]
+		},
+		context: {
+			data: {
+				level_1: [
+					{
+						level_2: [
+							{
+								level_3: {
+									full_name: 'Frikkie',
+									age: 46
+								}
+							},
+							{
+								level_3: {
+									full_name: 'John',
+									age: 15
+								}
+							},
+							{
+								level_3: {
+									full_name: 'Andrew',
+									age: 28
+								}
+							}
+						]
+					},
+					{
+						level_2: [
+							{
+								level_3: {
+									full_name: 'Frikkie',
+									age: 46
+								}
+							},
+							{
+								level_3: {
+									full_name: 'John',
+									age: 15
+								}
+							},
+							{
+								level_3: {
+									full_name: 'Frikkie',
+									age: 46
+								}
+							},
+							{
+								level_3: {
+									full_name: 'John',
+									age: 15
+								}
+							},
+							{
+								level_3: {
+									full_name: 'Andrew',
+									age: 28
+								}
+							}
+						]
+					}
+				]
+			}
+		}
 	}}
 />

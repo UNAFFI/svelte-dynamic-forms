@@ -3,7 +3,7 @@
 	import { getContext } from 'svelte';
 
 	// props
-	let { ...rest } = $props();
+	let { label, ...rest } = $props();
 
 	// get context
 	const context = getContext(FORM_CONTEXT);
@@ -16,7 +16,7 @@
 	);
 </script>
 
-{#if rest.definition.label}
+{#if label}
 	<label
 		class={[
 			'label_component',
@@ -25,24 +25,24 @@
 		]}
 		for={rest.definition.name}
 	>
-		{rest.definition.label}
+		{label}
 	</label>
 {/if}
 
 <style>
-		.label_component {
-			display: inline-block;
-			font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-			font-size: 0.97rem;
-			font-weight: 500;
-			color: #333;
-			letter-spacing: 0.01em;
-			line-height: 1.5;
-			margin-bottom: 0.35em;
-			transition: color 0.2s cubic-bezier(0.4,0,0.2,1);
-			cursor: pointer;
-			user-select: none;
-		}
+	.label_component {
+		display: inline-block;
+		font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+		font-size: 0.97rem;
+		font-weight: 500;
+		color: #333;
+		letter-spacing: 0.01em;
+		line-height: 1.5;
+		margin-bottom: 0.35em;
+		transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		cursor: pointer;
+		user-select: none;
+	}
 	.label_component.invalid {
 		color: #d32f2f; /* Material UI error color */
 	}
@@ -53,7 +53,7 @@
 		padding: 0;
 		margin: -1px;
 		overflow: hidden;
-		clip: rect(0,0,0,0);
+		clip: rect(0, 0, 0, 0);
 		white-space: nowrap;
 		border: 0;
 	}

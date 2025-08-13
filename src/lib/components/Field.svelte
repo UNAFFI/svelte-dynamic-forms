@@ -18,7 +18,7 @@
 	let { definition } = $props();
 
 	// constants
-	const handleStateParamsChangeDebounced = debounce(handleStateParamsChange, 300);
+	const handleDynamicContextChangeDebounced = debounce(handleDynamicContextChange, 200);
 
 	// get context
 	const context = getContext(FORM_CONTEXT);
@@ -32,23 +32,25 @@
 	let state_root = $state();
 
 	// derived state
-	const state_params = $derived.by(() => {
-		if (!formatted_definition?.state_params) return;
-		const result = [];
-		for (let param_expression of formatted_definition?.state_params ?? []) {
-			let param = context;
-			for (let part of param_expression.split('.')) {
-				if (!param) break;
-				param = param[part];
+	const dynamic_context = $derived.by(() => {
+		/** @type {Record<string, any>} */
+		const result = {};
+		if (formatted_definition?.dynamic_context) {
+			for (let [key, path] of Object.entries(formatted_definition.dynamic_context)) {
+				let value = context;
+				for (let part of path.split('.')) {
+					if (!value) break;
+					value = value[part];
+				}
+				result[key] = value;
 			}
-			result.push(param);
 		}
 		return result;
 	});
 
 	// effects
 	$effect(() => {
-		state_params;
+		dynamic_context;
 
 		untrack(() => {
 			if (formatted_definition?.state_path) {
@@ -57,7 +59,7 @@
 					context.state[formatted_definition?.state_path].is_conditions_checked = false;
 				}
 
-				handleStateParamsChangeDebounced();
+				handleDynamicContextChangeDebounced();
 			}
 		});
 	});
@@ -105,28 +107,32 @@
 			result.state_path = `${result.parent_state_path}.${result.state_path}`;
 		}
 
-		// set state_params
-		if (!result.state_params) result.state_params = [];
-		if (!Array.isArray(result.state_params)) {
-			throw new Error(
-				`Field definition "state_params" property must be an array: ${JSON.stringify(result)}`
-			);
+		// set dynamic_context
+		if (result.dynamic_context) {
+			// make sure simple object with string values
+			if (typeof result.dynamic_context !== 'object' || Array.isArray(result.dynamic_context)) {
+				throw new Error(
+					`Field definition "dynamic_context" property must be an object: ${JSON.stringify(result)}`
+				);
+			}
 		}
 
 		// set validations
-		if (!result.validations) result.validations = [];
-		if (!Array.isArray(result.validations)) {
-			throw new Error(
-				`Field definition "validations" property must be an array: ${JSON.stringify(result)}`
-			);
+		if (result.validations) {
+			if (!Array.isArray(result.validations)) {
+				throw new Error(
+					`Field definition "validations" property must be an array: ${JSON.stringify(result)}`
+				);
+			}
 		}
 
 		// set conditions
-		if (!result.conditions) result.conditions = [];
-		if (!Array.isArray(result.conditions)) {
-			throw new Error(
-				`Field definition "conditions" property must be an array: ${JSON.stringify(result)}`
-			);
+		if (result.conditions) {
+			if (!Array.isArray(result.conditions)) {
+				throw new Error(
+					`Field definition "conditions" property must be an array: ${JSON.stringify(result)}`
+				);
+			}
 		}
 
 		// set data_path
@@ -140,17 +146,18 @@
 		result.data_key = result.data_path.split('.').pop() ?? '';
 
 		// set fields
-		if (!result.fields) result.fields = [];
-		if (!Array.isArray(result.fields)) {
-			throw new Error(
-				`Field definition "fields" property must be an array: ${JSON.stringify(result)}`
-			);
+		if (result.fields) {
+			if (!Array.isArray(result.fields)) {
+				throw new Error(
+					`Field definition "fields" property must be an array: ${JSON.stringify(result)}`
+				);
+			}
+			result.fields = result.fields.map((field) => ({
+				...field,
+				parent_data_path: result.data_path,
+				parent_state_path: result.state_path
+			}));
 		}
-		result.fields = result.fields.map((field) => ({
-			...field,
-			parent_data_path: result.data_path,
-			parent_state_path: result.state_path
-		}));
 
 		// set data_root in nested object (if necessary)
 		data_root = context;
@@ -173,7 +180,7 @@
 
 		// get init_data
 		if (init_data === undefined) {
-			if (result.default) {
+			if (result.default !== undefined) {
 				// default setting
 				default_data = structuredClone(await jsonata(result.default).evaluate(context));
 			} else if (default_values[result.fieldtype] !== undefined) {
@@ -197,43 +204,84 @@
 		state_root = context.state[result.state_path];
 	}
 
-	async function handleStateParamsChange() {
-		console.log('State params changed for ', formatted_definition?.state_path);
+	async function handleDynamicContextChange() {
+		console.log('Dynamic context changed for ', formatted_definition?.state_path);
 
-		if (!state_params || !formatted_definition || !context.state[formatted_definition?.state_path])
+		if (
+			!dynamic_context ||
+			!formatted_definition ||
+			!context.state[formatted_definition?.state_path]
+		)
 			return;
 
 		const field_state = context.state[formatted_definition?.state_path];
 
-		// validation
-		const validation_checks = [];
-		const validations = formatted_definition.validations;
-		for (let i = 0; i < validations?.length; i++) {
-			const validation = validations[i];
-			const expression = validation?.expression;
-			const error_message = validation?.error_message;
-			const validation_result = await jsonata(expression).evaluate({ params: state_params });
-			validation_checks.push({
-				error_message,
-				is_valid: validation_result === true
+		// dynamic_placeholder
+		if (formatted_definition.dynamic_placeholder) {
+			const dynamic_placeholder = await jsonata(formatted_definition.dynamic_placeholder).evaluate({
+				...context,
+				dynamic: dynamic_context
 			});
+			field_state.dynamic_placeholder = dynamic_placeholder;
 		}
-		const first_validation_error = validation_checks?.find((check) => !check.is_valid);
+
+		// dynamic_label
+		if (formatted_definition.dynamic_label) {
+			const dynamic_label = await jsonata(formatted_definition.dynamic_label).evaluate({
+				...context,
+				dynamic: dynamic_context
+			});
+			field_state.dynamic_label = dynamic_label;
+		}
+
+		// dynamic_content
+		if (formatted_definition.dynamic_content) {
+			const dynamic_content = await jsonata(formatted_definition.dynamic_content).evaluate({
+				...context,
+				dynamic: dynamic_context
+			});
+			field_state.dynamic_content = dynamic_content;
+		}
+
+		// validation
+		let is_valid = true;
+		if (formatted_definition.validations) {
+			const validation_checks = [];
+			for (let i = 0; i < formatted_definition.validations?.length; i++) {
+				const validation = formatted_definition.validations[i];
+				const expression = validation?.expression;
+				const error_message = validation?.error_message;
+				const validation_result = await jsonata(expression).evaluate({
+					...context,
+					dynamic: dynamic_context
+				});
+				validation_checks.push({
+					error_message,
+					is_valid: validation_result === true
+				});
+			}
+			const first_validation_error = validation_checks?.find((check) => !check.is_valid);
+			is_valid = !first_validation_error;
+			field_state.validation_error_message = first_validation_error?.error_message;
+			field_state.validation_checks = validation_checks;
+		}
 		field_state.is_validation_checked = true;
-		field_state.is_valid = !first_validation_error;
-		field_state.validation_error_message = first_validation_error?.error_message;
-		field_state.validation_checks = validation_checks;
+		field_state.is_valid = is_valid;
 
 		// conditions
 		let is_conditions_passed = true;
-		const conditions = formatted_definition.conditions;
-		for (let i = 0; i < conditions?.length; i++) {
-			const condition = conditions[i];
-			const expression = condition?.expression;
-			const condition_result = await jsonata(expression).evaluate({ params: state_params });
-			if (condition_result !== true) {
-				is_conditions_passed = false;
-				break;
+		if (formatted_definition.conditions) {
+			for (let i = 0; i < formatted_definition.conditions.length; i++) {
+				const condition = formatted_definition.conditions[i];
+				const expression = condition?.expression;
+				const condition_result = await jsonata(expression).evaluate({
+					...context,
+					dynamic: dynamic_context
+				});
+				if (condition_result !== true) {
+					is_conditions_passed = false;
+					break;
+				}
 			}
 		}
 		field_state.is_conditions_checked = true;
