@@ -25,7 +25,7 @@ npm install unaffi-dynamic-forms
 <script>
   import { Form } from 'unaffi-dynamic-forms';
   
-  let context = {};
+  let context = $state({});
   
   const config = {
     fields: [
@@ -37,7 +37,8 @@ npm install unaffi-dynamic-forms
             expression: '[[jsonata]]$length(data.full_name) > 2',
             error_message: 'Name must be at least 3 characters'
           }
-        ]
+        ],
+        template_dependencies: ['data.full_name'] // Required for validation to re-evaluate
       },
       {
         name: 'Email',
@@ -70,7 +71,8 @@ Basic text input with validation and templating support.
       expression: '[[jsonata]]$length(data.username) >= 3',
       error_message: 'Username must be at least 3 characters'
     }
-  ]
+  ],
+  template_dependencies: ['data.username'] // Required for validation to re-evaluate
 }
 ```
 
@@ -198,9 +200,47 @@ Fields can reactively update based on changes in other fields.
 }
 ```
 
+### Understanding Template Dependencies
+
+**Critical**: Template dependencies determine when validations, conditions, labels, placeholders, and content are re-evaluated. 
+
+- **For validations**: If your validation expression references `data.password`, you must include `'data.password'` in `template_dependencies`
+- **For conditions**: If your condition references `data.account_type`, you must include `'data.account_type'` in `template_dependencies`  
+- **For templated content**: If your label/placeholder/content references any data, include those paths in `template_dependencies`
+
+**Without proper template dependencies, your validations and conditions will only evaluate once and won't update when the referenced data changes.**
+
+```javascript
+// ❌ WRONG - validation won't re-evaluate when username changes
+{
+  name: 'Username',
+  fieldtype: 'text',
+  validations: [
+    {
+      expression: '[[jsonata]]$length(data.username) >= 3',
+      error_message: 'Username must be at least 3 characters'
+    }
+  ]
+  // Missing template_dependencies!
+}
+
+// ✅ CORRECT - validation re-evaluates when username changes
+{
+  name: 'Username',
+  fieldtype: 'text',
+  validations: [
+    {
+      expression: '[[jsonata]]$length(data.username) >= 3',
+      error_message: 'Username must be at least 3 characters'
+    }
+  ],
+  template_dependencies: ['data.username'] // Now validation is reactive!
+}
+```
+
 ### Conditional Logic
 
-Show or hide fields based on conditions.
+Show or hide fields based on conditions. **Important**: Always include referenced data paths in `template_dependencies` so conditions re-evaluate when those values change.
 
 ```javascript
 {
@@ -210,7 +250,8 @@ Show or hide fields based on conditions.
     {
       expression: '[[jsonata]]data.employment_status = "employed"'
     }
-  ]
+  ],
+  template_dependencies: ['data.employment_status'] // Required for condition to re-evaluate
 },
 {
   name: 'Employment Status',
@@ -233,7 +274,7 @@ Use powerful JSONata expressions for complex logic.
 
 ### Complex Validation
 
-Multi-rule validation with custom error messages.
+Multi-rule validation with custom error messages. **Important**: Include data paths referenced in validation expressions in `template_dependencies`.
 
 ```javascript
 {
@@ -252,7 +293,8 @@ Multi-rule validation with custom error messages.
       expression: '[[jsonata]]$contains(data.password, /[0-9]/)',
       error_message: 'Password must contain at least one number'
     }
-  ]
+  ],
+  template_dependencies: ['data.password'] // Required for validations to re-evaluate
 }
 ```
 
@@ -307,7 +349,7 @@ Validate the entire form programmatically:
   import { Form } from 'unaffi-dynamic-forms';
   
   let formRef;
-  let context = {};
+  let context = $state({});
   
   async function handleSubmit() {
     const validation = await formRef.validate();
@@ -376,7 +418,7 @@ Customize the appearance and behavior by swapping components:
 | `default` | `any` | Default value (supports templating) |
 | `validations` | `Validation[]` | Validation rules |
 | `conditions` | `Condition[]` | Conditional display rules |
-| `template_dependencies` | `string[]` | Paths that trigger re-evaluation |
+| `template_dependencies` | `string[]` | **Required** when using validations/conditions - Paths that trigger re-evaluation |
 | `template_context` | `object` | Reusable template variables |
 | `fields` | `FieldDefinition[]` | Child fields (for fieldset) |
 
@@ -399,6 +441,7 @@ const registrationConfig = {
       conditions: [
         { expression: '[[jsonata]]data.account_type = "personal"' }
       ],
+      template_dependencies: ['data.account_type'], // Required for condition to re-evaluate
       fields: [
         { name: 'First Name', fieldtype: 'text' },
         { name: 'Last Name', fieldtype: 'text' }
@@ -410,6 +453,7 @@ const registrationConfig = {
       conditions: [
         { expression: '[[jsonata]]data.account_type = "business"' }
       ],
+      template_dependencies: ['data.account_type'], // Required for condition to re-evaluate
       fields: [
         { name: 'Company Name', fieldtype: 'text' },
         { name: 'Tax ID', fieldtype: 'text' }
