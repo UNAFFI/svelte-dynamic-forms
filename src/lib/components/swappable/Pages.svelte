@@ -1,18 +1,21 @@
 <script>
 	// props
-	let { next, previous, current_fields, current_page_index, state_root, ...rest } = $props();
+	let { next, previous, current_page_index, state_root, ...rest } = $props();
 </script>
 
 <div class="pages_component">
-	<div class="page_container">
-		<rest.field_component
-			definition={{
-				...rest.definition,
-				fieldtype: 'fieldset',
-				fields: current_fields
-			}}
-		/>
-	</div>
+	{#each rest.definition.pages as page, page_index}
+		<div class="page_container" class:hidden={page_index !== current_page_index}>
+			<rest.field_component
+				definition={{
+					...rest.definition,
+					name: `${rest.definition.name}_page_${page_index}`,
+					fieldtype: 'fieldset',
+					fields: page.fields
+				}}
+			/>
+		</div>
+	{/each}
 	<div class="pagination_controls_container">
 		<button
 			type="button"
@@ -51,6 +54,9 @@
 		padding: 28px 16px 18px 16px;
 		margin-bottom: 18px;
 		transition: box-shadow 0.2s cubic-bezier(0.4,0,0.2,1);
+	}
+	.page_container.hidden {
+		display: none;
 	}
 	.pagination_controls_container {
 		border-top: 1px solid #eee;

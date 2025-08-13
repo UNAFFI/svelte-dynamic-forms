@@ -14,9 +14,6 @@
 
 	// derived state
 	const current_page_index = $derived(rest.state_root.page_index);
-	const current_fields = $derived.by(() => {
-		return rest.definition.pages?.[current_page_index]?.fields ?? [];
-	});
 
 	// on mount
 	onMount(() => {
@@ -40,7 +37,6 @@
 		<swappable_components.pages
 			{next}
 			{previous}
-			{current_fields}
 			{current_page_index}
 			field_component={Field}
 			{...rest}

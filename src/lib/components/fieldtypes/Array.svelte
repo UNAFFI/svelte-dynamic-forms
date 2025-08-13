@@ -56,7 +56,10 @@
 	}
 
 	function add() {
-		rest.data_root[rest.definition.data_key].push({});
+		rest.data_root[rest.definition.data_key] = [
+			...rest.data_root[rest.definition.data_key],
+			{}
+		];
 	}
 </script>
 
