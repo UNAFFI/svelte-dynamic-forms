@@ -8,12 +8,12 @@
 
 	// props
 	/** @type {FormProps} */
-	let { context = $bindable({}), config, swappable_components = {} } = $props();
+	let { context = $bindable({}), config = {}, swappable_components = {} } = $props();
 
 	// constants
-	const MAX_VALIDATION_TIME = 5000;
-	const VALIDATION_CHECK_INTERVAL = 100;
-	let is_validation_time_exceeded = false;
+	const MAX_VALIDATION_TIME = 5000; // Validation should not take longer than 5 seconds
+	const VALIDATION_CHECK_INTERVAL = 100; // Try validation 100 ms apart
+	let is_validation_time_exceeded = false; // If true, validation took too long
 
 	// set context
 	setContext(FORM_CONTEXT, context);
@@ -32,25 +32,28 @@
 
 	// functions
 	function initForm() {
-		context.state = {};
-		context.show_validation = Boolean(context.show_validation);
-		context.form_id = getFormId();
-		is_initialized = true;
+		context.state = {}; // Initialize the state for all fields
+		context.show_validation = Boolean(config.show_validation); // Whether to show validation messages
+		context.form_id = config.form_id || getFormId(); // The unique identifier for the form
+		is_initialized = true; // Set to true so the form can render
 	}
 
+	// This function gets called recursively until all fields are validated or the timeout is reached
+	/** @returns {Promise<FormValidationResult>} */
 	async function checkValidation() {
-		// loop through every state key and make sure that it is both checked and valid
+		// Initialize the result
+		/** @type {FormValidationResult} */
 		const result = {
 			is_valid: false,
 			is_validation_timeout: false,
 			is_validation_failed: false,
 			issues: []
 		};
+		// loop through every state key and make sure that it is both checked and valid
 		for (const key in context.state) {
 			const field_state = context.state[key];
 			if (field_state.is_validation_checked) {
 				if (!field_state.is_valid) {
-					// @ts-ignore
 					result.issues.push({
 						state_path: key,
 						error_message: field_state.validation_error_message
@@ -80,6 +83,7 @@
 		return result;
 	}
 
+	// This function is called from outside the form to enable pre-submit validation
 	export async function validate() {
 		context.show_validation = true;
 		is_validation_time_exceeded = true;
@@ -95,15 +99,10 @@
 {#if is_initialized === true}
 	<Field
 		definition={{
-			...config,
 			name: 'form',
 			data_path: 'data',
-			fieldtype: 'fieldset'
+			fieldtype: 'fieldset',
+			fields: config.fields
 		}}
 	/>
 {/if}
-
-Context:
-<pre>
-	{JSON.stringify(context, null, 2)}
-</pre>

@@ -4,7 +4,7 @@
 	import Mustache from 'mustache';
 	import { getContext, onMount, untrack } from 'svelte';
 	import { SWAPPABLE_COMPONENTS, FORM_CONTEXT } from '../symbols';
-	import { debounce, getKeyFromName } from '../utils';
+	import { debounce, getFormId, getKeyFromName } from '../utils';
 	import fieldtypes from './fieldtypes';
 	import default_values from '$lib/utils/default_values';
 
@@ -86,7 +86,7 @@
 		// ensure there is a fieldtype set
 		if (!result.fieldtype) {
 			throw new Error(
-				`Field definition is missing "fieldtype" property: ${JSON.stringify(result)}`
+				`Field definition is missing "fieldtype" property: ${result.name || result.fieldtype}`
 			);
 		}
 
@@ -97,23 +97,26 @@
 		}
 
 		// ensure the field has a name
-		if (!result.name) {
-			throw new Error(`Field definition is missing "name" property: ${JSON.stringify(result)}`);
-		}
-		result.label = result.label || result.name;
-		result.placeholder = result.placeholder || result.label;
+		result.name = result.name || result.fieldtype;
 
 		// set state_path
 		result.state_path = getKeyFromName(result.name);
 		if (result.parent_state_path) {
 			result.state_path = `${result.parent_state_path}.${result.state_path}`;
 		}
+		if (context.state[result.state_path]) {
+			result.state_path += `_${getFormId()}`;
+		}
+
+		// label and placeholder
+		result.label = result.label || result.name;
+		result.placeholder = result.placeholder || result.label;
 
 		// set template_dependencies
 		if (result.template_dependencies) {
 			if (!Array.isArray(result.template_dependencies)) {
 				throw new Error(
-					`Field definition "template_dependencies" property must be an array: ${JSON.stringify(result)}`
+					`Field definition "template_dependencies" property must be an array: ${result.name || result.fieldtype}`
 				);
 			}
 		}
@@ -122,7 +125,7 @@
 		if (result.validations) {
 			if (!Array.isArray(result.validations)) {
 				throw new Error(
-					`Field definition "validations" property must be an array: ${JSON.stringify(result)}`
+					`Field definition "validations" property must be an array: ${result.name || result.fieldtype}`
 				);
 			}
 		}
@@ -131,7 +134,7 @@
 		if (result.conditions) {
 			if (!Array.isArray(result.conditions)) {
 				throw new Error(
-					`Field definition "conditions" property must be an array: ${JSON.stringify(result)}`
+					`Field definition "conditions" property must be an array: ${result.name || result.fieldtype}`
 				);
 			}
 		}
@@ -150,7 +153,7 @@
 		if (result.fields) {
 			if (!Array.isArray(result.fields)) {
 				throw new Error(
-					`Field definition "fields" property must be an array: ${JSON.stringify(result)}`
+					`Field definition "fields" property must be an array: ${result.name || result.fieldtype}`
 				);
 			}
 			result.fields = result.fields.map((field) => ({
@@ -183,7 +186,7 @@
 		if (init_data === undefined) {
 			if (result.default !== undefined) {
 				// default setting
-				default_data = structuredClone(await jsonata(result.default).evaluate(context));
+				default_data = structuredClone(await interpolateTemplate(result.default));
 			} else if (default_values[result.fieldtype] !== undefined) {
 				// default from fieldtype
 				default_data = structuredClone(default_values[result.fieldtype]);
@@ -302,10 +305,18 @@
 
 			if (templating_key === 'jsonata') {
 				const template_part = template.match(/\[\[jsonata\]\](.*)/)?.[1] ?? '';
-				result = await jsonata(template_part).evaluate(context);
+				result = await jsonata(template_part).evaluate({
+					...context,
+					field_state:
+						formatted_definition?.state_path && context.state[formatted_definition?.state_path]
+				});
 			} else {
 				// @ts-ignore
-				result = Mustache.render(template, context);
+				result = Mustache.render(template, {
+					...context,
+					field_state:
+						formatted_definition?.state_path && context.state[formatted_definition?.state_path]
+				});
 			}
 		} catch (err) {
 			console.error(`Error interpolating template "${template}":`, err);

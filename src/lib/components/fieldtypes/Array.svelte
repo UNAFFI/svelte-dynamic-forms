@@ -60,4 +60,13 @@
 	}
 </script>
 
-<swappable_components.array field_component={Field} {add} {remove} {moveDown} {moveUp} {...rest} />
+{#if rest.definition.array_item_config}
+	<swappable_components.array
+		field_component={Field}
+		{add}
+		{remove}
+		{moveDown}
+		{moveUp}
+		{...rest}
+	/>
+{/if}

@@ -1,5 +1,6 @@
-/**@type {Record<FieldType, any>} */
-// @ts-ignore
+/**
+ * @type {Partial<Record<FieldType, any>>}
+ */
 export default {
 	array: [],
 	fieldset: {},
