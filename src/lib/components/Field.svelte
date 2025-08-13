@@ -31,7 +31,6 @@
 	// state
 	/** @type {FormattedFieldDefinition | undefined} */
 	let formatted_definition = $state();
-	let additional_template_context = $state();
 	let field_config = $state();
 	let data_root = $state();
 	let state_root = $state();
@@ -316,7 +315,9 @@
 </script>
 
 {#if state_root?.is_conditions_passed === true}
-	<swappable_components._fieldcontainer>
-		<field_config.component bind:state_root bind:data_root definition={formatted_definition} />
-	</swappable_components._fieldcontainer>
+	<div id="{context.form_id}-{formatted_definition?.state_path}">
+		<swappable_components._fieldcontainer>
+			<field_config.component bind:state_root bind:data_root definition={formatted_definition} />
+		</swappable_components._fieldcontainer>
+	</div>
 {/if}

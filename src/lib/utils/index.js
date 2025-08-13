@@ -7,6 +7,11 @@ export function getKeyFromName(name = '') {
 	return name.toLowerCase().trim().replace(/\s+/g, '_');
 }
 
+export function getFormId() {
+	// return 12 character random string
+	return Math.random().toString(36).substring(2, 14);
+}
+
 /**
  * @summary Debounce function to limit how often a function is called.
  *

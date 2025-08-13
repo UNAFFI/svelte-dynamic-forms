@@ -60,11 +60,4 @@
 	}
 </script>
 
-<swappable_components.array
-	field_component={Field}
-	{add}
-	{remove}
-	{moveDown}
-	{moveUp}
-	{...rest}
-/>
+<swappable_components.array field_component={Field} {add} {remove} {moveDown} {moveUp} {...rest} />

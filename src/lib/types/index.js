@@ -57,6 +57,7 @@
  * @property {FieldDefinition[]} [config.fields] - The fields that are part of the form.
  * @property {object} [context] - The context of the form.
  * @property {boolean} [context.show_validation] - Whether to show validation messages.
+ * @property {string} [context.form_id] - The unique identifier for the form.
  * @property {any} [context.data] - The form result.
  * @property {Record<string, any>} [context.state] - The form state (will be initialized to {}).
  * @property {Record<string, import('svelte').SvelteComponent>} [swappable_components] - The components used in the form.
