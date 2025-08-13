@@ -62,6 +62,7 @@
 		"svelte"
 	],
 	"dependencies": {
-		"jsonata": "^2.1.0"
+		"jsonata": "^2.1.0",
+		"mustache": "^4.2.0"
 	}
 }

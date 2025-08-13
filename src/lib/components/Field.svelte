@@ -1,9 +1,10 @@
 <script>
 	// imports
+	import jsonata from 'jsonata';
+	import Mustache from 'mustache';
 	import { getContext, onMount, untrack } from 'svelte';
 	import { SWAPPABLE_COMPONENTS, FORM_CONTEXT } from '../symbols';
 	import { debounce, getKeyFromName } from '../utils';
-	import jsonata from 'jsonata';
 	import fieldtypes from './fieldtypes';
 	import default_values from '$lib/utils/default_values';
 
@@ -18,7 +19,10 @@
 	let { definition } = $props();
 
 	// constants
-	const handleDynamicContextChangeDebounced = debounce(handleDynamicContextChange, 200);
+	const handleTemplateDependenciesChangedDebounced = debounce(
+		handleTemplateDependenciesChanged,
+		200
+	);
 
 	// get context
 	const context = getContext(FORM_CONTEXT);
@@ -27,22 +31,23 @@
 	// state
 	/** @type {FormattedFieldDefinition | undefined} */
 	let formatted_definition = $state();
+	let additional_template_context = $state();
 	let field_config = $state();
 	let data_root = $state();
 	let state_root = $state();
 
 	// derived state
-	const dynamic_context = $derived.by(() => {
+	const template_dependencies = $derived.by(() => {
 		/** @type {Record<string, any>} */
-		const result = {};
-		if (formatted_definition?.dynamic_context) {
-			for (let [key, path] of Object.entries(formatted_definition.dynamic_context)) {
+		const result = [];
+		if (formatted_definition?.template_dependencies) {
+			for (let path of formatted_definition.template_dependencies) {
 				let value = context;
 				for (let part of path.split('.')) {
 					if (!value) break;
 					value = value[part];
 				}
-				result[key] = value;
+				result.push(value);
 			}
 		}
 		return result;
@@ -50,16 +55,14 @@
 
 	// effects
 	$effect(() => {
-		dynamic_context;
+		template_dependencies;
 
 		untrack(() => {
-			if (formatted_definition?.state_path) {
-				if (context.state[formatted_definition?.state_path]) {
-					context.state[formatted_definition?.state_path].is_validation_checked = false;
-					context.state[formatted_definition?.state_path].is_conditions_checked = false;
-				}
+			if (state_root) {
+				state_root.is_validation_checked = false;
+				state_root.is_conditions_checked = false;
 
-				handleDynamicContextChangeDebounced();
+				handleTemplateDependenciesChangedDebounced();
 			}
 		});
 	});
@@ -107,12 +110,11 @@
 			result.state_path = `${result.parent_state_path}.${result.state_path}`;
 		}
 
-		// set dynamic_context
-		if (result.dynamic_context) {
-			// make sure simple object with string values
-			if (typeof result.dynamic_context !== 'object' || Array.isArray(result.dynamic_context)) {
+		// set template_dependencies
+		if (result.template_dependencies) {
+			if (!Array.isArray(result.template_dependencies)) {
 				throw new Error(
-					`Field definition "dynamic_context" property must be an object: ${JSON.stringify(result)}`
+					`Field definition "template_dependencies" property must be an array: ${JSON.stringify(result)}`
 				);
 			}
 		}
@@ -204,11 +206,11 @@
 		state_root = context.state[result.state_path];
 	}
 
-	async function handleDynamicContextChange() {
-		console.log('Dynamic context changed for ', formatted_definition?.state_path);
+	async function handleTemplateDependenciesChanged() {
+		console.log('Template dependencies changed for ', formatted_definition?.state_path);
 
 		if (
-			!dynamic_context ||
+			!template_dependencies ||
 			!formatted_definition ||
 			!context.state[formatted_definition?.state_path]
 		)
@@ -216,32 +218,22 @@
 
 		const field_state = context.state[formatted_definition?.state_path];
 
-		// dynamic_placeholder
-		if (formatted_definition.dynamic_placeholder) {
-			const dynamic_placeholder = await jsonata(formatted_definition.dynamic_placeholder).evaluate({
-				...context,
-				dynamic: dynamic_context
-			});
-			field_state.dynamic_placeholder = dynamic_placeholder;
+		// additional_template_context
+		if (formatted_definition?.template_context) {
+			field_state.template_context = {};
+			for (const [key, template] of Object.entries(formatted_definition.template_context)) {
+				field_state.template_context[key] = await interpolateTemplate(template);
+			}
 		}
 
-		// dynamic_label
-		if (formatted_definition.dynamic_label) {
-			const dynamic_label = await jsonata(formatted_definition.dynamic_label).evaluate({
-				...context,
-				dynamic: dynamic_context
-			});
-			field_state.dynamic_label = dynamic_label;
-		}
+		// content
+		field_state.content = await interpolateTemplate(formatted_definition.content);
 
-		// dynamic_content
-		if (formatted_definition.dynamic_content) {
-			const dynamic_content = await jsonata(formatted_definition.dynamic_content).evaluate({
-				...context,
-				dynamic: dynamic_context
-			});
-			field_state.dynamic_content = dynamic_content;
-		}
+		// placeholder
+		field_state.placeholder = await interpolateTemplate(formatted_definition.placeholder);
+
+		// label
+		field_state.label = await interpolateTemplate(formatted_definition.label);
 
 		// validation
 		let is_valid = true;
@@ -251,13 +243,10 @@
 				const validation = formatted_definition.validations[i];
 				const expression = validation?.expression;
 				const error_message = validation?.error_message;
-				const validation_result = await jsonata(expression).evaluate({
-					...context,
-					dynamic: dynamic_context
-				});
+				const validation_result = await interpolateTemplate(expression);
 				validation_checks.push({
 					error_message,
-					is_valid: validation_result === true
+					is_valid: Boolean(validation_result)
 				});
 			}
 			const first_validation_error = validation_checks?.find((check) => !check.is_valid);
@@ -274,11 +263,8 @@
 			for (let i = 0; i < formatted_definition.conditions.length; i++) {
 				const condition = formatted_definition.conditions[i];
 				const expression = condition?.expression;
-				const condition_result = await jsonata(expression).evaluate({
-					...context,
-					dynamic: dynamic_context
-				});
-				if (condition_result !== true) {
+				const condition_result = await interpolateTemplate(expression);
+				if (!Boolean(condition_result)) {
 					is_conditions_passed = false;
 					break;
 				}
@@ -306,6 +292,26 @@
 			}
 			field_state.last_conditions_result = is_conditions_passed;
 		}
+	}
+
+	/** @param {string} [template] */
+	async function interpolateTemplate(template = '') {
+		let result = '';
+		try {
+			// get the templating key from the start of the template (if any). The templating key is inside two square brackets like [[jsonata]] = templating language - jsonata
+			const templating_key = template.match(/\[\[(.*?)\]\]/)?.[1];
+
+			if (templating_key === 'jsonata') {
+				const template_part = template.match(/\[\[jsonata\]\](.*)/)?.[1] ?? '';
+				result = await jsonata(template_part).evaluate(context);
+			} else {
+				// @ts-ignore
+				result = Mustache.render(template, context);
+			}
+		} catch (err) {
+			console.error(`Error interpolating template "${template}":`, err);
+		}
+		return result;
 	}
 </script>
 

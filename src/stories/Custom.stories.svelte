@@ -20,12 +20,10 @@
 					fieldtype: 'custom',
 					custom_component_key: "_custom1",
 					default: "''",
-					dynamic_context: {
-						color: "data.favorite_color"
-					},
+					template_dependencies: ["data.favorite_color"],
 					validations: [
 						{
-							expression: "dynamic.color = 'Yellow'",
+							expression: "[[jsonata]]data.favorite_color = 'Yellow'",
 							error_message: "Color must be Yellow"
 						}
 					]

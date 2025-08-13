@@ -16,9 +16,15 @@
 			fields: [
 				{
 					name: 'Full Name',
-					fieldtype: 'text'
+					fieldtype: 'text',
+					label: '{{data.full_name}} name'
 				}
 			]
+		},
+		context: {
+			data: {
+				full_name: 'John Doe'
+			}
 		}
 	}}
 />
@@ -66,14 +72,14 @@
 				{
 					name: 'Full Name',
 					fieldtype: 'text',
-					dynamic_context: { name: 'data.full_name' },
+					template_dependencies: ['data.full_name'],
 					validations: [
 						{
-							expression: '$length($trim(dynamic.name)) > 0',
+							expression: '[[jsonata]]$length($trim(data.full_name)) > 0',
 							error_message: 'Full Name is required.'
 						},
 						{
-							expression: '$length($trim(dynamic.name)) < 20',
+							expression: '[[jsonata]]$length($trim(data.full_name)) < 20',
 							error_message: 'Full Name must be less than 20 characters.'
 						}
 					]
@@ -102,10 +108,10 @@
 				{
 					name: 'Age',
 					fieldtype: 'text',
-					dynamic_context: { name: 'data.full_name' },
+					template_dependencies: ['data.full_name'],
 					conditions: [
 						{
-							expression: '$length($trim(dynamic.name)) > 0'
+							expression: '[[jsonata]]$length($trim(data.full_name)) > 0'
 						}
 					]
 				}
@@ -131,10 +137,10 @@
 				{
 					name: 'Age',
 					fieldtype: 'text',
-					dynamic_context: { name: 'data.full_name' },
+					template_dependencies: ['data.full_name'],
 					conditions: [
 						{
-							expression: '$length($trim(dynamic.name)) > 0'
+							expression: '[[jsonata]]$length($trim(data.full_name)) > 0'
 						}
 					],
 					keep_data_on_conditions_failed: true

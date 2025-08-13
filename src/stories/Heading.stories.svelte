@@ -36,10 +36,8 @@
 				{
 					name: 'Heading',
 					fieldtype: 'heading',
-					dynamic_content: "'Hello ' & dynamic.full_name",
-					dynamic_context: {
-						full_name: "data.full_name"
-					}
+					content: "Hello {{data.full_name}}",
+					template_dependencies: ["data.full_name"]
 				}
 			]
 		},

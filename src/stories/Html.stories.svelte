@@ -36,10 +36,8 @@
 				{
 					name: 'Html',
 					fieldtype: 'html',
-					dynamic_content: "'<b>Hello</b> <i>' & dynamic.full_name & '</i>'",
-					dynamic_context: {
-						full_name: "data.full_name"
-					}
+					content: "<b>Hello</b> <i>{{data.full_name}}</i>",
+					template_dependencies: ["data.full_name"]
 				}
 			]
 		},
