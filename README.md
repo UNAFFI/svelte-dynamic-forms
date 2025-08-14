@@ -248,6 +248,81 @@ Date selection field that allows users to pick dates using the browser's native 
 }
 ```
 
+### Datetime Field
+
+Date and time selection field that allows users to pick both date and time using the browser's native datetime picker. Functions similarly to the date field but includes time selection.
+
+```javascript
+{
+  name: 'Appointment Time',
+  fieldtype: 'datetime',
+  label: 'When would you like to schedule your appointment?',
+  validations: [
+    {
+      expression: '[[jsonata]]$exists(data.appointment_time)',
+      error_message: 'Please select an appointment time'
+    },
+    {
+      expression: '[[jsonata]]$toMillis(data.appointment_time & ":00.000Z") > $millis()',
+      error_message: 'Appointment time must be in the future'
+    }
+  ],
+  template_dependencies: ['data.appointment_time'] // Required for validation to re-evaluate
+}
+```
+
+#### Advanced Datetime Examples
+
+**Business hours validation:**
+```javascript
+{
+  name: 'Appointment Time',
+  fieldtype: 'datetime',
+  label: 'Appointment time (business hours: 9 AM - 5 PM, Mon-Fri)',
+  validations: [
+    {
+      expression: '[[jsonata]]$formatDateTime($toMillis(data.appointment_time & ":00.000Z"), "[F1]") in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]',
+      error_message: 'Appointments are only available Monday through Friday'
+    },
+    {
+      expression: '[[jsonata]]$number($formatDateTime($toMillis(data.appointment_time & ":00.000Z"), "[H01]")) >= 9 and $number($formatDateTime($toMillis(data.appointment_time & ":00.000Z"), "[H01]")) < 17',
+      error_message: 'Appointments are only available between 9 AM and 5 PM'
+    }
+  ],
+  template_dependencies: ['data.appointment_time']
+}
+```
+
+**Date range with time validation:**
+```javascript
+{
+  name: 'Conference End Time',
+  fieldtype: 'datetime',
+  label: 'Conference end time',
+  validations: [
+    {
+      expression: '[[jsonata]]$toMillis(data.conference_end_time & ":00.000Z") > $toMillis(data.conference_start_time & ":00.000Z")',
+      error_message: 'End time must be after start time'
+    },
+    {
+      expression: '[[jsonata]]$toMillis(data.conference_end_time & ":00.000Z") - $toMillis(data.conference_start_time & ":00.000Z") <= (8 * 60 * 60 * 1000)',
+      error_message: 'Conference cannot be longer than 8 hours'
+    }
+  ],
+  template_dependencies: ['data.conference_end_time', 'data.conference_start_time']
+}
+```
+
+**Dynamic default datetime (24 hours from now):**
+```javascript
+{
+  name: 'Reminder Time',
+  fieldtype: 'datetime',
+  label: 'Set reminder time',
+  default: '[[jsonata]]$fromMillis($millis() + (24 * 60 * 60 * 1000), "[Y0001]-[M01]-[D01]T[H01]:[m01]")'
+}
+```
+
 ### Select Field
 
 Dropdown selection field with configurable options for single-value selection.

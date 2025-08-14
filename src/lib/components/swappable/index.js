@@ -2,6 +2,7 @@ import Array from './Array.svelte';
 import Checkboxes from './Checkboxes.svelte';
 import Custom from './Custom.svelte';
 import Date from './Date.svelte';
+import Datetime from './Datetime.svelte';
 import Fieldset from './Fieldset.svelte';
 import Heading from './Heading.svelte';
 import Html from './Html.svelte';
@@ -21,6 +22,7 @@ export default {
 	checkboxes: Checkboxes,
 	custom: Custom,
 	date: Date,
+	datetime: Datetime,
 	fieldset: Fieldset,
 	heading: Heading,
 	html: Html,

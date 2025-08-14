@@ -5,6 +5,7 @@ export default {
 	array: [],
 	checkboxes: [],
 	date: '',
+	datetime: '',
 	fieldset: {},
 	multiselect: [],
 	pages: {},

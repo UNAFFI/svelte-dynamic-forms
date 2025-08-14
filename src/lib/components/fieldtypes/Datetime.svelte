@@ -11,4 +11,4 @@
 	const placeholder = $derived(rest.state_root?.placeholder || '');
 </script>
 
-<swappable_components.date {label} {placeholder} {...rest} />
+<swappable_components.datetime {label} {placeholder} {...rest} />
