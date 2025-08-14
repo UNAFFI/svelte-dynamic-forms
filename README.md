@@ -187,6 +187,147 @@ context.data = {
 }
 ```
 
+### MultiSelect Field
+
+Multi-selection field that allows users to select multiple options from a list. Stores selected values as an array of objects.
+
+```javascript
+{
+  name: 'Skills',
+  fieldtype: 'multiselect',
+  placeholder: 'Select your skills',
+  options: [
+    { label: 'JavaScript', value: 'javascript' },
+    { label: 'Python', value: 'python' },
+    { label: 'Java', value: 'java' },
+    { label: 'C#', value: 'csharp' },
+    { label: 'Go', value: 'go' },
+    { label: 'TypeScript', value: 'typescript' }
+  ],
+  validations: [
+    {
+      expression: '[[jsonata]]$count(data.skills) >= 1',
+      error_message: 'Please select at least one skill'
+    },
+    {
+      expression: '[[jsonata]]$count(data.skills) <= 5',
+      error_message: 'Please select no more than 5 skills'
+    }
+  ],
+  template_dependencies: ['data.skills']
+}
+```
+
+#### MultiSelect Options Structure
+
+Each option in the `options` array must have:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `label` | `string` | Display text shown to users |
+| `value` | `string` | Internal value stored in form data |
+
+#### MultiSelect Field Data Storage
+
+The multiselect field stores selected values as an array of objects:
+
+```javascript
+// Example: If field name is "skills" and user selects "JavaScript" and "Python"
+context.data = {
+  skills: [
+    { value: 'javascript', label: 'JavaScript' },
+    { value: 'python', label: 'Python' }
+  ]
+}
+```
+
+#### Advanced MultiSelect Examples
+
+**Required selections with limits:**
+```javascript
+{
+  name: 'Required Tags',
+  fieldtype: 'multiselect',
+  placeholder: 'Select tags (1-3 required)',
+  options: [
+    { label: 'Urgent', value: 'urgent' },
+    { label: 'Important', value: 'important' },
+    { label: 'Bug Fix', value: 'bugfix' },
+    { label: 'Feature', value: 'feature' },
+    { label: 'Documentation', value: 'docs' }
+  ],
+  validations: [
+    {
+      expression: '[[jsonata]]$count(data.required_tags) >= 1',
+      error_message: 'At least one tag is required'
+    },
+    {
+      expression: '[[jsonata]]$count(data.required_tags) <= 3',
+      error_message: 'Maximum 3 tags allowed'
+    }
+  ],
+  template_dependencies: ['data.required_tags']
+}
+```
+
+**Dynamic options based on other fields:**
+```javascript
+{
+  name: 'Available Features',
+  fieldtype: 'multiselect',
+  placeholder: 'Select features to enable',
+  options: '[[jsonata]]data.subscription_type = "premium" ? premium_features : data.subscription_type = "basic" ? basic_features : []',
+  conditions: [
+    {
+      expression: '[[jsonata]]$exists(data.subscription_type)'
+    }
+  ],
+  template_dependencies: ['data.subscription_type', 'premium_features', 'basic_features']
+}
+```
+
+**MultiSelect with conditional validation:**
+```javascript
+{
+  name: 'Technologies',
+  fieldtype: 'multiselect',
+  placeholder: 'Select technologies you\'ll use',
+  options: [
+    { label: 'Frontend Framework', value: 'frontend' },
+    { label: 'Backend Framework', value: 'backend' },
+    { label: 'Database', value: 'database' },
+    { label: 'Cloud Platform', value: 'cloud' },
+    { label: 'Testing Framework', value: 'testing' }
+  ],
+  validations: [
+    {
+      expression: '[[jsonata]]$count(data.technologies) >= 2',
+      error_message: 'Please select at least 2 technologies'
+    },
+    {
+      expression: '[[jsonata]]data.project_type = "fullstack" ? ("frontend" in data.technologies.value and "backend" in data.technologies.value) : true',
+      error_message: 'Full-stack projects must include both frontend and backend technologies'
+    }
+  ],
+  template_dependencies: ['data.technologies', 'data.project_type']
+}
+```
+
+**MultiSelect with summary display:**
+```javascript
+{
+  name: 'Selected Skills Summary',
+  fieldtype: 'html',
+  content: '[[jsonata]]$count(data.skills) > 0 ? "<p>You have selected <strong>" & $count(data.skills) & "</strong> skills: " & $join(data.skills.label, ", ") & "</p>" : "<p>No skills selected yet.</p>"',
+  conditions: [
+    {
+      expression: '[[jsonata]]$exists(data.skills)'
+    }
+  ],
+  template_dependencies: ['data.skills']
+}
+```
+
 ### Fieldset
 
 Groups related fields together, useful for organizing form sections.
