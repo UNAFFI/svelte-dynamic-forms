@@ -60,3 +60,50 @@
 		}
 	}}
 ></Story>
+
+<Story
+	name="Dynamic options"
+	args={{
+		config: {
+			fields: [
+				{
+					name: 'Favorite Color',
+					fieldtype: 'select',
+					options: '[[jsonata]]data.color_options',
+					template_dependencies: ['data.color_options']
+				},
+				{
+					name: 'Color options',
+					fieldtype: 'array',
+					array_item_config: {
+						fields: [
+							{
+								name: 'Label',
+								fieldtype: 'text'
+							}
+						]
+					}
+				}
+			]
+		},
+		context: {
+			data: {
+				color_options: [
+					{
+						label: "Yellow"
+					},
+					{
+						label: "Green"
+					},
+					{
+						label: "Blue"
+					},
+					{
+						label: "Red"
+					}
+				],
+				favorite_color: "Green"
+			}
+		}
+	}}
+></Story>

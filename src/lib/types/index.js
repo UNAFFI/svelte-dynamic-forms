@@ -14,7 +14,7 @@
  */
 
 /**
- * @typedef {object} StaticOption
+ * @typedef {object} Option
  * @property {string} label - The label for the option
  * @property {string} value - The value for the option
  */
@@ -38,7 +38,7 @@
  * @property {FormProps["config"]} [array_item_config] - Config for every item in array. Used in certain fieldtypes like array
  * @property {FormProps["config"][]} [pages] - Config for every page in pages. Used in certain fieldtypes like pages
  * @property {string} [custom_component_key] - The key for the custom component (passed via swappable components) to render. Used in certain fieldtypes like custom
- * @property {StaticOption[] | string} options - The options for the field. Used in certain fieldtypes like select
+ * @property {Option[] | string} options - The options for the field. Used in certain fieldtypes like select (evaluated whenever the template_dependencies change)
  */
 
 /**

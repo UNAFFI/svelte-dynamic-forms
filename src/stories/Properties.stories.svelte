@@ -440,3 +440,36 @@
 		}
 	}}
 ></Story>
+
+<!-- The options for the field. Used in certain fieldtypes like select (evaluated whenever the template_dependencies change) -->
+<Story
+	name="options"
+	args={{
+		config: {
+			fields: [
+				{
+					name: 'Favorite Color',
+					fieldtype: 'select',
+					options: [
+						{
+							label: 'Yellow',
+							value: 'yellow'
+						},
+						{
+							label: 'Green',
+							value: 'green'
+						},
+						{
+							label: 'Blue',
+							value: 'blue'
+						},
+						{
+							label: 'Red',
+							value: 'red'
+						}
+					]
+				}
+			]
+		}
+	}}
+></Story>

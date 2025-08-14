@@ -297,23 +297,37 @@
 
 		// options
 		if (formatted_definition?.options) {
-			let options = [];
-			if (Array.isArray(formatted_definition.options)) {
-				for (let option of formatted_definition.options) {
-					options.push({
-						label: await interpolateTemplate(option.label),
-						value: await interpolateTemplate(option.value)
-					});
+			try {
+				let options = [];
+				if (Array.isArray(formatted_definition.options)) {
+					for (let option of formatted_definition.options) {
+						options.push({
+							label: await interpolateTemplate(option.label),
+							value: await interpolateTemplate(option.value)
+						});
+					}
+				} else if (typeof formatted_definition.options === 'string') {
+					options = await interpolateTemplate(formatted_definition.options);
 				}
-			} else if (typeof formatted_definition.options === 'string') {
-				options = await interpolateTemplate(formatted_definition.options);
-			}
-			if (!Array.isArray(options)) {
-				throw new Error(
-					`Field definition "options" property must be an array or a string: ${formatted_definition.name || formatted_definition.fieldtype}`
+				if (!Array.isArray(options)) {
+					throw new Error(
+						`Field definition "options" property must be an array or a string: ${formatted_definition.name || formatted_definition.fieldtype}`
+					);
+				}
+				field_state.options = options.map((option) => {
+					const { label, value } = option;
+					return {
+						...option,
+						label: label === undefined ? value : label,
+						value: value === undefined ? label : value
+					};
+				});
+			} catch (err) {
+				console.error(
+					`Error processing options for field "${formatted_definition.name || formatted_definition.fieldtype}":`,
+					err
 				);
 			}
-			field_state.options = options;
 		}
 	}
 

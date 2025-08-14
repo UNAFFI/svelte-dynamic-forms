@@ -49,7 +49,7 @@
 		flex-direction: column;
 		gap: 20px;
 		width: 100%;
-		margin: 0 auto 24px auto;
+		margin: 0 auto 0 0;
 		box-sizing: border-box;
 		max-width: 700px;
 	}

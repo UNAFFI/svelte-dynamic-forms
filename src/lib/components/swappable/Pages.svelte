@@ -44,8 +44,8 @@
 		width: 100%;
 		box-sizing: border-box;
 		padding: 0;
-		margin: 0 auto;
-		max-width: 600px;
+		margin: 0 auto 0 0;
+		max-width: 700px;
 	}
 	.page_container {
 		background: #fff;
