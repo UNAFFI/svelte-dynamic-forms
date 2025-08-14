@@ -99,6 +99,92 @@ Multi-line text input field for longer content. Functions exactly like the text 
 }
 ```
 
+### Number Field
+
+Numeric input field that allows both whole numbers and decimals. Perfect for prices, quantities, ages, ratings, and any numeric data.
+
+```javascript
+{
+  name: 'Age',
+  fieldtype: 'number',
+  placeholder: 'Enter your age',
+  validations: [
+    {
+      expression: '[[jsonata]]$exists(data.age)',
+      error_message: 'Please enter your age'
+    },
+    {
+      expression: '[[jsonata]]$number(data.age) >= 18',
+      error_message: 'You must be at least 18 years old'
+    }
+  ],
+  template_dependencies: ['data.age'] // Required for validation to re-evaluate
+}
+```
+
+#### Advanced Number Examples
+
+**Price validation with decimal precision:**
+```javascript
+{
+  name: 'Product Price',
+  fieldtype: 'number',
+  label: 'Price (USD)',
+  placeholder: 'Enter price',
+  validations: [
+    {
+      expression: '[[jsonata]]$number(data.product_price) > 0',
+      error_message: 'Price must be greater than $0'
+    },
+    {
+      expression: '[[jsonata]]$number(data.product_price) <= 10000',
+      error_message: 'Maximum price is $10,000'
+    },
+    {
+      expression: '[[jsonata]]$string($number(data.product_price)) ~> /^\d+(\.\d{1,2})?$/',
+      error_message: 'Price can have at most 2 decimal places'
+    }
+  ],
+  template_dependencies: ['data.product_price']
+}
+```
+
+**Budget calculator with dependent validation:**
+```javascript
+{
+  name: 'Monthly Expenses',
+  fieldtype: 'number',
+  label: 'Monthly expenses',
+  validations: [
+    {
+      expression: '[[jsonata]]$exists(data.monthly_income) ? $number(data.monthly_expenses) <= $number(data.monthly_income) : true',
+      error_message: 'Expenses cannot exceed your monthly income'
+    }
+  ],
+  template_dependencies: ['data.monthly_income', 'data.monthly_expenses']
+}
+```
+
+**Rating system with range validation:**
+```javascript
+{
+  name: 'Rating',
+  fieldtype: 'number',
+  label: 'Product rating (0.0 - 5.0)',
+  placeholder: 'Enter rating',
+  validations: [
+    {
+      expression: '[[jsonata]]$number(data.rating) >= 0 and $number(data.rating) <= 5',
+      error_message: 'Rating must be between 0.0 and 5.0'
+    }
+  ],
+  template_dependencies: ['data.rating']
+}
+```
+
+### Select Field
+```
+
 ### Checkboxes Field
 
 Multiple selection field using checkboxes for selecting several options from a list. Functions exactly like the multiselect field but displays options as individual checkboxes.

@@ -8,6 +8,7 @@ export default {
 	datetime: '',
 	fieldset: {},
 	multiselect: [],
+	number: null,
 	pages: {},
 	radio: '',
 	select: '',

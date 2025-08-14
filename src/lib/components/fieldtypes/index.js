@@ -7,6 +7,7 @@ import Fieldset from './Fieldset.svelte';
 import Heading from './Heading.svelte';
 import Html from './Html.svelte';
 import MultiSelect from './MultiSelect.svelte';
+import Number from './Number.svelte';
 import Pages from './Pages.svelte';
 import Radio from './Radio.svelte';
 import Select from './Select.svelte';
@@ -24,6 +25,7 @@ export default {
 	heading: Heading,
 	html: Html,
 	multiselect: MultiSelect,
+	number: Number,
 	pages: Pages,
 	radio: Radio,
 	select: Select,
