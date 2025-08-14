@@ -470,6 +470,11 @@
 					]
 				}
 			]
+		},
+		context: {
+			data: {
+				favorite_color: 'blue'
+			}
 		}
 	}}
 ></Story>
