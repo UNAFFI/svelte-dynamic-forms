@@ -182,6 +182,77 @@ Numeric input field that allows both whole numbers and decimals. Perfect for pri
 }
 ```
 
+### Checkbox Field
+
+Single checkbox field that allows you to define custom values for checked and unchecked states. Perfect for boolean toggles, feature flags, agreements, and binary choices with custom data values.
+
+```javascript
+{
+  name: 'Agree to Terms',
+  fieldtype: 'checkbox',
+  label: 'I agree to the terms and conditions',
+  checked_value: true,
+  unchecked_value: false,
+  validations: [
+    {
+      expression: '[[jsonata]]data.agree_to_terms = true',
+      error_message: 'You must agree to the terms to continue'
+    }
+  ],
+  template_dependencies: ['data.agree_to_terms']
+}
+```
+
+#### Advanced Checkbox Examples
+
+**Custom string values for business logic:**
+```javascript
+{
+  name: 'Account Type',
+  fieldtype: 'checkbox',
+  label: 'Business account (additional features)',
+  checked_value: 'business',
+  unchecked_value: 'personal',
+  validations: [
+    {
+      expression: '[[jsonata]]data.account_type in ["business", "personal"]',
+      error_message: 'Please select an account type'
+    }
+  ],
+  template_dependencies: ['data.account_type']
+}
+```
+
+**Numeric values for pricing calculations:**
+```javascript
+{
+  name: 'Premium Features',
+  fieldtype: 'checkbox',
+  label: 'Add premium features (+$15/month)',
+  checked_value: 15,
+  unchecked_value: 0,
+  template_dependencies: ['data.premium_features']
+}
+```
+
+**Conditional validation based on other fields:**
+```javascript
+{
+  name: 'Email Notifications',
+  fieldtype: 'checkbox',
+  label: 'Enable email notifications',
+  checked_value: 'enabled',
+  unchecked_value: 'disabled',
+  validations: [
+    {
+      expression: '[[jsonata]]data.account_type = "business" ? data.email_notifications = "enabled" : true',
+      error_message: 'Business accounts must enable email notifications'
+    }
+  ],
+  template_dependencies: ['data.account_type', 'data.email_notifications']
+}
+```
+
 ### Select Field
 ```
 

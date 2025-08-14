@@ -329,6 +329,20 @@
 				);
 			}
 		}
+
+		// checked_value
+		if (formatted_definition?.checked_value !== undefined) {
+			field_state.checked_value = await interpolateTemplate(formatted_definition.checked_value);
+		} else {
+			field_state.checked_value = true;
+		}
+
+		// unchecked_value
+		if (formatted_definition?.unchecked_value !== undefined) {
+			field_state.unchecked_value = await interpolateTemplate(formatted_definition.unchecked_value);
+		} else {
+			field_state.unchecked_value = false;
+		}
 	}
 
 	/**
@@ -336,6 +350,7 @@
 	 * @returns {Promise<any>}
 	 */
 	async function interpolateTemplate(template = '') {
+		if (typeof template !== 'string') return template;
 		let result = '';
 		try {
 			// get the templating key from the start of the template (if any). The templating key is inside two square brackets like [[jsonata]] = templating language - jsonata

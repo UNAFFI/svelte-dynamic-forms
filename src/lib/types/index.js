@@ -1,5 +1,5 @@
 /**
- * @typedef {"array" | "checkboxes" | "custom" | "date" | "datetime" | "fieldset" | "multiselect" | "number" | "pages" | "radio" | "select" | "text" | "textarea" | "time"} FieldType
+ * @typedef {"array" | "checkbox" | "checkboxes" | "custom" | "date" | "datetime" | "fieldset" | "multiselect" | "number" | "pages" | "radio" | "select" | "text" | "textarea" | "time"} FieldType
  */
 
 /**
@@ -39,6 +39,8 @@
  * @property {FormProps["config"][]} [pages] - Config for every page in pages. Used in certain fieldtypes like pages
  * @property {string} [custom_component_key] - The key for the custom component (passed via swappable components) to render. Used in certain fieldtypes like custom
  * @property {Option[] | string} options - The options for the field. Used in certain fieldtypes like select (evaluated whenever the template_dependencies change)
+ * @property {any} [checked_value] - The value for a checkbox if it is checked. Used in certain fieldtypes like checkbox (default is true)
+ * @property {any} [unchecked_value] - The value for a checkbox if it is unchecked. Used in certain fieldtypes like checkbox (default is false)
  */
 
 /**

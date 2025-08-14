@@ -1,4 +1,5 @@
 import Array from './Array.svelte';
+import Checkbox from './Checkbox.svelte';
 import Checkboxes from './Checkboxes.svelte';
 import Custom from './Custom.svelte';
 import Date from './Date.svelte';
@@ -21,6 +22,7 @@ import Radio from './Radio.svelte';
 export default {
 	// fieldtypes
 	array: Array,
+	checkbox: Checkbox,
 	checkboxes: Checkboxes,
 	custom: Custom,
 	date: Date,
