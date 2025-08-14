@@ -30,68 +30,6 @@
 </script>
 
 <Story
-	name="Tennis Tournament Signup Form"
-	args={{
-		config: {
-			fields: [
-				{
-					fieldtype: 'heading',
-					content: 'Tennis Tournament Signup'
-				},
-				{
-					fieldtype: 'text',
-					name: 'full_name',
-					label: 'Full Name',
-					placeholder: 'Enter your full name'
-				},
-				{
-					fieldtype: 'text',
-					name: 'email',
-					label: 'Email Address',
-					placeholder: 'Enter your email'
-				},
-				{
-					fieldtype: 'fieldset',
-					label: 'Player Details',
-					fields: [
-						{
-							fieldtype: 'text',
-							name: 'age',
-							label: 'Age',
-							placeholder: 'Enter your age'
-						},
-						{
-							fieldtype: 'array',
-							name: 'emergency_contacts',
-							label: 'Emergency Contacts',
-							array_item_config: {
-								fields: [
-									{
-										fieldtype: 'text',
-										name: 'contact_name',
-										label: 'Contact Name'
-									},
-									{
-										fieldtype: 'text',
-										name: 'contact_phone',
-										label: 'Contact Phone'
-									}
-								]
-							}
-						}
-					]
-				},
-				{
-					fieldtype: 'html',
-					content:
-						'<p style="margin:0">By signing up, you agree to the tournament rules and privacy policy.</p>'
-				}
-			]
-		}
-	}}
-></Story>
-
-<Story
 	name="Registration Form with Conditional Logic"
 	args={{
 		config: {
@@ -99,8 +37,19 @@
 			fields: [
 				{
 					name: 'Account Type',
-					fieldtype: 'text',
-					placeholder: 'personal or business'
+					fieldtype: 'select',
+					placeholder: 'Choose account type',
+					options: [
+						{ label: 'Personal Account', value: 'personal' },
+						{ label: 'Business Account', value: 'business' }
+					],
+					validations: [
+						{
+							expression: '[[jsonata]]$exists(data.account_type)',
+							error_message: 'Please select an account type'
+						}
+					],
+					template_dependencies: ['data.account_type']
 				},
 				{
 					name: 'Personal Information',
@@ -160,6 +109,84 @@
 					fieldtype: 'html',
 					content: 'You have answered {{data.questions.length}} questions',
 					template_dependencies: ['data.questions']
+				}
+			]
+		}
+	}}
+></Story>
+
+<Story
+	name="Advanced Select Field Examples"
+	args={{
+		config: {
+			fields: [
+				{
+					name: 'Product Category',
+					fieldtype: 'select',
+					placeholder: 'Choose a category',
+					options: [
+						{ label: 'Electronics', value: 'electronics' },
+						{ label: 'Clothing', value: 'clothing' },
+						{ label: 'Home & Garden', value: 'home_garden' },
+						{ label: 'Books', value: 'books' }
+					],
+					validations: [
+						{
+							expression: '[[jsonata]]$exists(data.product_category)',
+							error_message: 'Product category is required'
+						}
+					],
+					template_dependencies: ['data.product_category']
+				},
+				{
+					name: 'Subcategory',
+					fieldtype: 'select',
+					placeholder: 'Choose a subcategory',
+					// Dynamic options based on selected category
+					options:
+						'[[jsonata]]data.product_category = "electronics" ? [{"label": "Laptops", "value": "laptops"}, {"label": "Smartphones", "value": "smartphones"}, {"label": "Tablets", "value": "tablets"}] : data.product_category = "clothing" ? [{"label": "Men\'s Clothing", "value": "mens"}, {"label": "Women\'s Clothing", "value": "womens"}, {"label": "Kids\' Clothing", "value": "kids"}] : data.product_category = "home_garden" ? [{"label": "Furniture", "value": "furniture"}, {"label": "Decor", "value": "decor"}, {"label": "Tools", "value": "tools"}] : []',
+					conditions: [
+						{
+							expression: '[[jsonata]]$exists(data.product_category)'
+						}
+					],
+					template_dependencies: ['data.product_category'],
+					validations: [
+						{
+							expression: '[[jsonata]]$exists(data.subcategory)',
+							error_message: 'Please select a subcategory'
+						}
+					]
+				},
+				{
+					name: 'Product Summary',
+					fieldtype: 'html',
+					content:
+						'<p>Selected: <strong>{{data.product_category_label}} > {{data.subcategory_label}}</strong></p>',
+					conditions: [
+						{
+							expression: '[[jsonata]]$exists(data.product_category) and $exists(data.subcategory)'
+						}
+					],
+					template_dependencies: ['data.product_category_label', 'data.subcategory_label']
+				},
+				{
+					name: 'Priority',
+					fieldtype: 'select',
+					placeholder: 'Select priority',
+					options: [
+						{ label: '🔴 High Priority', value: 'high' },
+						{ label: '🟡 Medium Priority', value: 'medium' },
+						{ label: '🟢 Low Priority', value: 'low' }
+					],
+					default: 'medium', // Default selection
+					validations: [
+						{
+							expression: '[[jsonata]]data.priority in ["high", "medium", "low"]',
+							error_message: 'Please select a valid priority level'
+						}
+					],
+					template_dependencies: ['data.priority']
 				}
 			]
 		}

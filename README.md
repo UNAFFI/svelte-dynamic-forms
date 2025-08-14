@@ -76,6 +76,117 @@ Basic text input with validation and templating support.
 }
 ```
 
+### Select Field
+
+Dropdown selection field with configurable options for single-value selection.
+
+```javascript
+{
+  name: 'Country',
+  fieldtype: 'select',
+  placeholder: 'Choose your country',
+  options: [
+    {
+      label: 'United States',
+      value: 'us'
+    },
+    {
+      label: 'Canada', 
+      value: 'ca'
+    },
+    {
+      label: 'United Kingdom',
+      value: 'uk'
+    }
+  ],
+  validations: [
+    {
+      expression: '[[jsonata]]$exists(data.country)',
+      error_message: 'Please select a country'
+    }
+  ],
+  template_dependencies: ['data.country'] // Required for validation to re-evaluate
+}
+```
+
+#### Dynamic Options
+
+Options can be generated dynamically using templates:
+
+```javascript
+{
+  name: 'Department',
+  fieldtype: 'select',
+  options: '[[jsonata]]data.departments.{ "label": name, "value": id }',
+  template_dependencies: ['data.departments']
+}
+```
+
+#### Select Options Structure
+
+Each option in the `options` array must have:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `label` | `string` | Display text shown to users |
+| `value` | `string` | Internal value stored in form data |
+
+#### Select Field Data Storage
+
+The select field stores two values in the form data:
+- `[field_name]`: The selected option's `value`
+- `[field_name]_label`: The selected option's `label` (for display purposes)
+
+```javascript
+// Example: If field name is "country" and user selects "United States"
+context.data = {
+  country: 'us',           // The value
+  country_label: 'United States'  // The label
+}
+```
+
+#### Advanced Select Examples
+
+**Conditional options based on other fields:**
+```javascript
+{
+  name: 'State',
+  fieldtype: 'select',
+  options: '[[jsonata]]data.country = "us" ? states_us : data.country = "ca" ? states_ca : []',
+  conditions: [
+    {
+      expression: '[[jsonata]]data.country in ["us", "ca"]'
+    }
+  ],
+  template_dependencies: ['data.country']
+}
+```
+
+**Select with validation:**
+```javascript
+{
+  name: 'Priority Level',
+  fieldtype: 'select',
+  options: [
+    { label: 'Low', value: 'low' },
+    { label: 'Medium', value: 'medium' },
+    { label: 'High', value: 'high' },
+    { label: 'Critical', value: 'critical' }
+  ],
+  validations: [
+    {
+      expression: '[[jsonata]]$exists(data.priority_level)',
+      error_message: 'Priority level is required'
+    },
+    {
+      expression: '[[jsonata]]data.issue_type = "bug" ? data.priority_level in ["high", "critical"] : true',
+      error_message: 'Bug reports must have high or critical priority'
+    }
+  ],
+  template_dependencies: ['data.priority_level', 'data.issue_type']
+}
+```
+
 ### Fieldset
 
 Groups related fields together, useful for organizing form sections.
@@ -103,7 +214,7 @@ Groups related fields together, useful for organizing form sections.
 
 ### Array Field
 
-Dynamic arrays that allow users to add, remove, and reorder items.
+Repeatable field groups for collecting multiple sets of the same data structure.
 
 ```javascript
 {
@@ -416,6 +527,7 @@ Customize the appearance and behavior by swapping components:
 | `label` | `string` | Field label (supports templating) |
 | `placeholder` | `string` | Field placeholder (supports templating) |
 | `default` | `any` | Default value (supports templating) |
+| `options` | `Option[]` or `string` | Options for select fields (supports templating) |
 | `validations` | `Validation[]` | Validation rules |
 | `conditions` | `Condition[]` | Conditional display rules |
 | `template_dependencies` | `string[]` | **Required** when using validations/conditions - Paths that trigger re-evaluation |
@@ -432,8 +544,19 @@ const registrationConfig = {
   fields: [
     {
       name: 'Account Type',
-      fieldtype: 'text',
-      placeholder: 'personal or business'
+      fieldtype: 'select',
+      placeholder: 'Choose account type',
+      options: [
+        { label: 'Personal Account', value: 'personal' },
+        { label: 'Business Account', value: 'business' }
+      ],
+      validations: [
+        {
+          expression: '[[jsonata]]$exists(data.account_type)',
+          error_message: 'Please select an account type'
+        }
+      ],
+      template_dependencies: ['data.account_type']
     },
     {
       name: 'Personal Information',
@@ -496,6 +619,95 @@ const surveyConfig = {
       fieldtype: 'html',
       content: 'You have answered {{data.questions.length}} questions',
       template_dependencies: ['data.questions']
+    }
+  ]
+};
+```
+
+### Advanced Select Field Examples
+
+```javascript
+const advancedSelectConfig = {
+  fields: [
+    {
+      name: 'Product Category',
+      fieldtype: 'select',
+      placeholder: 'Choose a category',
+      options: [
+        { label: 'Electronics', value: 'electronics' },
+        { label: 'Clothing', value: 'clothing' },
+        { label: 'Home & Garden', value: 'home_garden' },
+        { label: 'Books', value: 'books' }
+      ],
+      validations: [
+        {
+          expression: '[[jsonata]]$exists(data.product_category)',
+          error_message: 'Product category is required'
+        }
+      ],
+      template_dependencies: ['data.product_category']
+    },
+    {
+      name: 'Subcategory',
+      fieldtype: 'select',
+      placeholder: 'Choose a subcategory',
+      // Dynamic options based on selected category
+      options: '[[jsonata]]data.product_category = "electronics" ? [{"label": "Laptops", "value": "laptops"}, {"label": "Smartphones", "value": "smartphones"}, {"label": "Tablets", "value": "tablets"}] : data.product_category = "clothing" ? [{"label": "Men\'s Clothing", "value": "mens"}, {"label": "Women\'s Clothing", "value": "womens"}, {"label": "Kids\' Clothing", "value": "kids"}] : data.product_category = "home_garden" ? [{"label": "Furniture", "value": "furniture"}, {"label": "Decor", "value": "decor"}, {"label": "Tools", "value": "tools"}] : []',
+      conditions: [
+        {
+          expression: '[[jsonata]]$exists(data.product_category)'
+        }
+      ],
+      template_dependencies: ['data.product_category'],
+      validations: [
+        {
+          expression: '[[jsonata]]$exists(data.subcategory)',
+          error_message: 'Please select a subcategory'
+        }
+      ]
+    },
+    {
+      name: 'Product Summary',
+      fieldtype: 'html',
+      content: '<p>Selected: <strong>{{data.product_category_label}} > {{data.subcategory_label}}</strong></p>',
+      conditions: [
+        {
+          expression: '[[jsonata]]$exists(data.product_category) and $exists(data.subcategory)'
+        }
+      ],
+      template_dependencies: ['data.product_category_label', 'data.subcategory_label']
+    },
+    {
+      name: 'Priority',
+      fieldtype: 'select',
+      placeholder: 'Select priority',
+      options: [
+        { label: '🔴 High Priority', value: 'high' },
+        { label: '🟡 Medium Priority', value: 'medium' },
+        { label: '🟢 Low Priority', value: 'low' }
+      ],
+      default: 'medium', // Default selection
+      validations: [
+        {
+          expression: '[[jsonata]]data.priority in ["high", "medium", "low"]',
+          error_message: 'Please select a valid priority level'
+        }
+      ],
+      template_dependencies: ['data.priority']
+    },
+    {
+      name: 'Team Members',
+      fieldtype: 'select',
+      placeholder: 'Assign team members',
+      // Options from external data source
+      options: '[[jsonata]]team_members.{ "label": name & " (" & role & ")", "value": id }',
+      template_dependencies: ['team_members'],
+      validations: [
+        {
+          expression: '[[jsonata]]$exists(data.team_members)',
+          error_message: 'Please assign at least one team member'
+        }
+      ]
     }
   ]
 };
