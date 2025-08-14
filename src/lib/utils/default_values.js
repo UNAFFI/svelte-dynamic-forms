@@ -3,6 +3,7 @@
  */
 export default {
 	array: [],
+	checkboxes: [],
 	fieldset: {},
 	multiselect: [],
 	pages: {},

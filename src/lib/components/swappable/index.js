@@ -1,4 +1,5 @@
 import Array from './Array.svelte';
+import Checkboxes from './Checkboxes.svelte';
 import Custom from './Custom.svelte';
 import Fieldset from './Fieldset.svelte';
 import Heading from './Heading.svelte';
@@ -16,6 +17,7 @@ import Radio from './Radio.svelte';
 export default {
 	// fieldtypes
 	array: Array,
+	checkboxes: Checkboxes,
 	custom: Custom,
 	fieldset: Fieldset,
 	heading: Heading,

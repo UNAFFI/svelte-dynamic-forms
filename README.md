@@ -99,6 +99,84 @@ Multi-line text input field for longer content. Functions exactly like the text 
 }
 ```
 
+### Checkboxes Field
+
+Multiple selection field using checkboxes for selecting several options from a list. Functions exactly like the multiselect field but displays options as individual checkboxes.
+
+```javascript
+{
+  name: 'Skills',
+  fieldtype: 'checkboxes',
+  options: [
+    {
+      label: 'JavaScript',
+      value: 'javascript'
+    },
+    {
+      label: 'Python',
+      value: 'python'
+    },
+    {
+      label: 'React',
+      value: 'react'
+    },
+    {
+      label: 'Node.js',
+      value: 'nodejs'
+    }
+  ],
+  validations: [
+    {
+      expression: '[[jsonata]]$count(data.skills) >= 1',
+      error_message: 'Please select at least one skill'
+    },
+    {
+      expression: '[[jsonata]]$count(data.skills) <= 3',
+      error_message: 'Please select no more than 3 skills'
+    }
+  ],
+  template_dependencies: ['data.skills'] // Required for validation to re-evaluate
+}
+```
+
+#### Advanced Checkboxes Examples
+
+**Dynamic options based on user role:**
+```javascript
+{
+  name: 'Available Features',
+  fieldtype: 'checkboxes',
+  options: '[[jsonata]]data.user_role = "admin" ? admin_features : data.user_role = "user" ? user_features : basic_features',
+  conditions: [
+    {
+      expression: '[[jsonata]]$exists(data.user_role)'
+    }
+  ],
+  template_dependencies: ['data.user_role']
+}
+```
+
+**Checkboxes with conditional requirements:**
+```javascript
+{
+  name: 'Required Certifications',
+  fieldtype: 'checkboxes',
+  options: [
+    { label: 'AWS Certified', value: 'aws' },
+    { label: 'Azure Certified', value: 'azure' },
+    { label: 'GCP Certified', value: 'gcp' },
+    { label: 'Kubernetes Certified', value: 'k8s' }
+  ],
+  validations: [
+    {
+      expression: '[[jsonata]]data.job_level = "senior" ? $count(data.required_certifications) >= 2 : true',
+      error_message: 'Senior positions require at least 2 certifications'
+    }
+  ],
+  template_dependencies: ['data.required_certifications', 'data.job_level']
+}
+```
+
 ### Select Field
 
 Dropdown selection field with configurable options for single-value selection.
