@@ -4,6 +4,7 @@ import Fieldset from './Fieldset.svelte';
 import Heading from './Heading.svelte';
 import Html from './Html.svelte';
 import Pages from './Pages.svelte';
+import Select from './Select.svelte';
 import Text from './Text.svelte';
 
 export default {
@@ -13,5 +14,6 @@ export default {
 	heading: Heading,
 	html: Html,
 	pages: Pages,
+	select: Select,
 	text: Text,
 };

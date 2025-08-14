@@ -21,7 +21,7 @@
 	// constants
 	const handleTemplateDependenciesChangedDebounced = debounce(
 		handleTemplateDependenciesChanged,
-		200
+		300
 	);
 
 	// get context
@@ -206,6 +206,28 @@
 		// set the state
 		context.state[result.state_path] = {};
 		state_root = context.state[result.state_path];
+
+		// options
+		if (formatted_definition?.options) {
+			let options = [];
+			if (Array.isArray(formatted_definition.options)) {
+				for (let option of formatted_definition.options) {
+					options.push({
+						label: await interpolateTemplate(option.label),
+						value: await interpolateTemplate(option.value)
+					});
+				}
+			} else if (typeof formatted_definition.options === 'string') {
+				options = await interpolateTemplate(formatted_definition.options);
+			}
+			if (Array.isArray(options)) {
+				context.state[result.state_path].options = options;
+			} else {
+				throw new Error(
+					`Field definition "options" property must be an array or a string: ${formatted_definition.name || formatted_definition.fieldtype}`
+				);
+			}
+		}
 	}
 
 	async function handleTemplateDependenciesChanged() {
@@ -296,7 +318,10 @@
 		}
 	}
 
-	/** @param {string} [template] */
+	/**
+	 * @param {string} [template]
+	 * @returns {Promise<any>}
+	 */
 	async function interpolateTemplate(template = '') {
 		let result = '';
 		try {
