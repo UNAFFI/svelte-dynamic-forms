@@ -101,8 +101,7 @@
 					{
 						label: "Red"
 					}
-				],
-				favorite_color: "Green"
+				]
 			}
 		}
 	}}

@@ -22,8 +22,14 @@
 			!rest.state_root?.is_valid // invalid
 	);
 	const filtered_options = $derived(options.filter((/** @type {any} */ o) => !o.is_filtered_out));
-	const selected_option = $derived(options.find((/** @type {any} */ o) => o.is_selected));
-	const display_text = $derived(selected_option?.label || placeholder || '');
+	const selected_options = $derived(options.filter((/** @type {any} */ o) => o.is_selected));
+	const display_text = $derived(
+		selected_options.length === 0
+			? placeholder || 'Select options...'
+			: selected_options.length === 1
+			? selected_options[0].label
+			: `${selected_options.length} items selected`
+	);
 	const search_text = $derived(rest.state_root.select_filter_text || '');
 
 	// functions
@@ -51,12 +57,8 @@
 	function selectCurrentOption() {
 		if (highlightedIndex >= 0 && highlightedIndex < filtered_options.length) {
 			toggleOption(filtered_options[highlightedIndex]);
-			isOpen = false;
-			highlightedIndex = -1;
-			// Clear search after selection
-			if (rest.state_root) {
-				rest.state_root.select_filter_text = '';
-			}
+			// Keep dropdown open for multi-select
+			// Don't clear search or close dropdown
 		}
 	}
 
@@ -134,12 +136,8 @@
 	 */
 	function handleOptionClick(option, index) {
 		toggleOption(option);
-		isOpen = false;
-		highlightedIndex = -1;
-		// Clear search after selection
-		if (rest.state_root) {
-			rest.state_root.select_filter_text = '';
-		}
+		// Keep dropdown open for multi-select
+		// Don't clear search or close dropdown
 	}
 
 	/**
@@ -175,11 +173,12 @@
 			aria-expanded={isOpen}
 			aria-label={label || 'Select an option'}
 		>
-			<span class={['select_text', !selected_option && 'placeholder']}>
+			<span class={['select_text', selected_options.length === 0 && 'placeholder']}>
 				{display_text}
 			</span>
 			<div class="select_controls">
-				{#if selected_option}
+				{#if selected_options.length > 0}
+					<span class="selection_count">{selected_options.length}</span>
 					<button
 						type="button"
 						class="clear_button"
@@ -222,7 +221,18 @@
 							role="option"
 							aria-selected={option.is_selected}
 						>
-							{option.label}
+							<div class="option_checkbox">
+								<input 
+									type="checkbox" 
+									checked={option.is_selected}
+									tabindex="-1"
+									readonly
+								/>
+								<svg class="checkmark" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+									<polyline points="20,6 9,17 4,12"></polyline>
+								</svg>
+							</div>
+							<span class="option_label">{option.label}</span>
 						</button>
 					{/each}
 					{#if filtered_options.length === 0}
@@ -313,6 +323,18 @@
 		flex-shrink: 0;
 	}
 
+	.selection_count {
+		background: #1976d2;
+		color: white;
+		font-size: 0.75rem;
+		font-weight: 500;
+		padding: 2px 6px;
+		border-radius: 10px;
+		min-width: 16px;
+		text-align: center;
+		line-height: 1.2;
+	}
+
 	.clear_button {
 		display: flex;
 		align-items: center;
@@ -367,7 +389,7 @@
 		border-radius: 0 0 4px 4px;
 		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 		z-index: 1000;
-		max-height: 200px;
+		max-height: 300px;
 		overflow: hidden;
 		display: flex;
 		flex-direction: column;
@@ -399,7 +421,7 @@
 	}
 
 	.options_list {
-		max-height: 160px;
+		max-height: 260px;
 		overflow-y: auto;
 		flex: 1;
 	}
@@ -411,12 +433,17 @@
 		color: #222;
 		background: #fff;
 		border: none;
-		padding: 10px 12px;
+		padding: 12px 16px;
 		width: 100%;
 		text-align: left;
 		cursor: pointer;
 		transition: background-color 0.2s cubic-bezier(0.4,0,0.2,1);
 		border-bottom: 1px solid #f0f0f0;
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		min-height: 44px;
+		box-sizing: border-box;
 	}
 
 	.option:last-child {
@@ -431,11 +458,73 @@
 	.option.selected {
 		background: #e3f2fd;
 		color: #1976d2;
-		font-weight: 500;
 	}
 
 	.option.selected.highlighted {
 		background: #bbdefb;
+	}
+
+	.option_checkbox {
+		position: relative;
+		width: 18px;
+		height: 18px;
+		flex-shrink: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.option_checkbox input[type="checkbox"] {
+		position: absolute;
+		opacity: 0;
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		cursor: pointer;
+	}
+
+	.option_checkbox::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 16px;
+		height: 16px;
+		border: 2px solid #bdbdbd;
+		border-radius: 3px;
+		background: #fff;
+		transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+	}
+
+	.option.selected .option_checkbox::before {
+		background: #1976d2;
+		border-color: #1976d2;
+	}
+
+	.checkmark {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%) scale(0.5);
+		width: 12px;
+		height: 12px;
+		color: white;
+		opacity: 0;
+		transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+		pointer-events: none;
+	}
+
+	.option.selected .checkmark {
+		opacity: 1;
+		transform: translate(-50%, -50%) scale(1);
+	}
+
+	.option_label {
+		flex: 1;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.no_options {

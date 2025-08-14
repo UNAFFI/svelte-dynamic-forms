@@ -20,11 +20,6 @@
 			is_filtered_out: !option.label.toLowerCase().includes(filter_text.toLowerCase())
 		}));
 	});
-	const selectedOptions = $derived.by(() => {
-		return options?.filter((option) =>
-			rest.data_root[rest.definition.data_key].find((v) => v.value === option.value)
-		);
-	});
 
 	// functions
 	function toggleOption(option) {
@@ -48,7 +43,3 @@
 {#if options}
 	<swappable_components.multiselect {toggleOption} {clear} {label} {placeholder} {options} {...rest} />
 {/if}
-
-<pre>
-    {JSON.stringify(rest.data_root, null, 2)}
-</pre>
