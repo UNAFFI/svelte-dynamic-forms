@@ -313,6 +313,92 @@ Date and time selection field that allows users to pick both date and time using
 }
 ```
 
+### Time Field
+
+Time selection field that allows users to pick a time using the browser's native time picker. Useful for scheduling, business hours, deadlines, and any time-specific configurations.
+
+```javascript
+{
+  name: 'Meeting Time',
+  fieldtype: 'time',
+  label: 'What time should we meet?',
+  validations: [
+    {
+      expression: '[[jsonata]]$exists(data.meeting_time)',
+      error_message: 'Please select a meeting time'
+    }
+  ],
+  template_dependencies: ['data.meeting_time']
+}
+```
+
+#### Advanced Time Examples
+
+**Business hours validation:**
+```javascript
+{
+  name: 'Office Hours Start',
+  fieldtype: 'time',
+  label: 'Office opening time',
+  validations: [
+    {
+      expression: '[[jsonata]]$toMillis("1970-01-01T" & data.office_start & ":00.000Z") >= $toMillis("1970-01-01T08:00:00.000Z")',
+      error_message: 'Office must open at or after 8:00 AM'
+    },
+    {
+      expression: '[[jsonata]]$toMillis("1970-01-01T" & data.office_start & ":00.000Z") <= $toMillis("1970-01-01T10:00:00.000Z")',
+      error_message: 'Office must open by 10:00 AM'
+    }
+  ],
+  template_dependencies: ['data.office_start']
+}
+```
+
+**Time range validation:**
+```javascript
+{
+  name: 'End Time',
+  fieldtype: 'time',
+  label: 'Event end time',
+  validations: [
+    {
+      expression: '[[jsonata]]$exists(data.start_time) ? $toMillis("1970-01-01T" & data.end_time & ":00.000Z") > $toMillis("1970-01-01T" & data.start_time & ":00.000Z") : true',
+      error_message: 'End time must be after start time'
+    },
+    {
+      expression: '[[jsonata]]$toMillis("1970-01-01T" & data.end_time & ":00.000Z") - $toMillis("1970-01-01T" & data.start_time & ":00.000Z") <= (4 * 60 * 60 * 1000)',
+      error_message: 'Event cannot be longer than 4 hours'
+    }
+  ],
+  template_dependencies: ['data.start_time', 'data.end_time']
+}
+```
+
+**Conditional time selection:**
+```javascript
+{
+  name: 'Reminder Time',
+  fieldtype: 'time',
+  label: 'When should we remind you?',
+  conditions: [
+    {
+      expression: '[[jsonata]]data.enable_reminders = true'
+    }
+  ],
+  validations: [
+    {
+      expression: '[[jsonata]]$toMillis("1970-01-01T" & data.reminder_time & ":00.000Z") >= $toMillis("1970-01-01T06:00:00.000Z")',
+      error_message: 'Reminders cannot be set before 6:00 AM'
+    },
+    {
+      expression: '[[jsonata]]$toMillis("1970-01-01T" & data.reminder_time & ":00.000Z") <= $toMillis("1970-01-01T22:00:00.000Z")',
+      error_message: 'Reminders cannot be set after 10:00 PM'
+    }
+  ],
+  template_dependencies: ['data.enable_reminders', 'data.reminder_time']
+}
+```
+
 **Dynamic default datetime (24 hours from now):**
 ```javascript
 {

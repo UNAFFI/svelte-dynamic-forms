@@ -12,6 +12,7 @@ import Radio from './Radio.svelte';
 import Select from './Select.svelte';
 import Text from './Text.svelte';
 import Textarea from './Textarea.svelte';
+import Time from './Time.svelte';
 
 export default {
 	array: Array,
@@ -28,4 +29,5 @@ export default {
 	select: Select,
 	text: Text,
 	textarea: Textarea,
+	time: Time,
 };
