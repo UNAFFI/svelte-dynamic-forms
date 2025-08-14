@@ -6,6 +6,8 @@ export default {
 	fieldset: {},
 	multiselect: [],
 	pages: {},
+	radio: '',
 	select: '',
 	text: '',
+	textarea: '',
 };

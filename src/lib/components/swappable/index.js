@@ -11,6 +11,7 @@ import _Validation from './_Validation.svelte';
 import _FieldContainer from './_FieldContainer.svelte';
 import Select from './Select.svelte';
 import MultiSelect from './MultiSelect.svelte';
+import Radio from './Radio.svelte';
 
 export default {
 	// fieldtypes
@@ -21,6 +22,7 @@ export default {
 	html: Html,
 	multiselect: MultiSelect,
 	pages: Pages,
+	radio: Radio,
 	select: Select,
 	text: Text,
 	textarea: Textarea,

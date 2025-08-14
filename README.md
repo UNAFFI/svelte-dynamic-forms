@@ -351,6 +351,95 @@ context.data = {
 }
 ```
 
+### Radio Field
+
+Single-selection field that allows users to choose one option from a list using radio buttons. Functions exactly like the select field but displays options as radio buttons.
+
+```javascript
+{
+  name: 'Priority Level',
+  fieldtype: 'radio',
+  options: [
+    { label: 'Low', value: 'low' },
+    { label: 'Medium', value: 'medium' },
+    { label: 'High', value: 'high' },
+    { label: 'Critical', value: 'critical' }
+  ],
+  validations: [
+    {
+      expression: '[[jsonata]]$exists(data.priority_level)',
+      error_message: 'Please select a priority level'
+    }
+  ],
+  template_dependencies: ['data.priority_level']
+}
+```
+
+#### Radio Options Structure
+
+Each option in the `options` array must have:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `label` | `string` | Display text shown to users |
+| `value` | `string` | Internal value stored in form data |
+
+#### Radio Field Data Storage
+
+The radio field stores data exactly like the select field:
+- `[field_name]`: The selected option's `value`
+- `[field_name]_label`: The selected option's `label` (for display purposes)
+
+```javascript
+// Example: If field name is "priority_level" and user selects "High"
+context.data = {
+  priority_level: 'high',           // The value
+  priority_level_label: 'High'     // The label
+}
+```
+
+#### Advanced Radio Examples
+
+**Dynamic options based on other fields:**
+```javascript
+{
+  name: 'Shipping Method',
+  fieldtype: 'radio',
+  options: '[[jsonata]]data.location = "domestic" ? domestic_shipping : data.location = "international" ? international_shipping : []',
+  conditions: [
+    {
+      expression: '[[jsonata]]$exists(data.location)'
+    }
+  ],
+  template_dependencies: ['data.location']
+}
+```
+
+**Radio with conditional validation:**
+```javascript
+{
+  name: 'Payment Method',
+  fieldtype: 'radio',
+  options: [
+    { label: 'Credit Card', value: 'credit' },
+    { label: 'PayPal', value: 'paypal' },
+    { label: 'Bank Transfer', value: 'bank' },
+    { label: 'Cash on Delivery', value: 'cod' }
+  ],
+  validations: [
+    {
+      expression: '[[jsonata]]$exists(data.payment_method)',
+      error_message: 'Please select a payment method'
+    },
+    {
+      expression: '[[jsonata]]data.order_total > 100 ? data.payment_method != "cod" : true',
+      error_message: 'Cash on delivery is not available for orders over $100'
+    }
+  ],
+  template_dependencies: ['data.payment_method', 'data.order_total']
+}
+```
+
 ### Fieldset
 
 Groups related fields together, useful for organizing form sections.
