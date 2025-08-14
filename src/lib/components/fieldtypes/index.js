@@ -3,6 +3,7 @@ import Custom from './Custom.svelte';
 import Fieldset from './Fieldset.svelte';
 import Heading from './Heading.svelte';
 import Html from './Html.svelte';
+import MultiSelect from './MultiSelect.svelte';
 import Pages from './Pages.svelte';
 import Select from './Select.svelte';
 import Text from './Text.svelte';
@@ -13,6 +14,7 @@ export default {
 	fieldset: Fieldset,
 	heading: Heading,
 	html: Html,
+	multiselect: MultiSelect,
 	pages: Pages,
 	select: Select,
 	text: Text,

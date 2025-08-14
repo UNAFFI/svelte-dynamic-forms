@@ -1,5 +1,5 @@
 /**
- * @typedef {"array" | "custom" | "fieldset" | "pages" | "select" | "text"} FieldType
+ * @typedef {"array" | "custom" | "fieldset" | "multiselect" | "pages" | "select" | "text"} FieldType
  */
 
 /**

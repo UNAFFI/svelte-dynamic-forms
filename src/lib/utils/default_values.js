@@ -4,6 +4,7 @@
 export default {
 	array: [],
 	fieldset: {},
+	multiselect: [],
 	pages: {},
 	select: '',
 	text: '',

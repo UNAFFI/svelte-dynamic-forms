@@ -9,6 +9,7 @@ import _Label from './_Label.svelte';
 import _Validation from './_Validation.svelte';
 import _FieldContainer from './_FieldContainer.svelte';
 import Select from './Select.svelte';
+import MultiSelect from './MultiSelect.svelte';
 
 export default {
 	// fieldtypes
@@ -17,6 +18,7 @@ export default {
 	fieldset: Fieldset,
 	heading: Heading,
 	html: Html,
+	multiselect: MultiSelect,
 	pages: Pages,
 	select: Select,
 	text: Text,
