@@ -206,28 +206,6 @@
 		// set the state
 		context.state[result.state_path] = {};
 		state_root = context.state[result.state_path];
-
-		// options
-		if (formatted_definition?.options) {
-			let options = [];
-			if (Array.isArray(formatted_definition.options)) {
-				for (let option of formatted_definition.options) {
-					options.push({
-						label: await interpolateTemplate(option.label),
-						value: await interpolateTemplate(option.value)
-					});
-				}
-			} else if (typeof formatted_definition.options === 'string') {
-				options = await interpolateTemplate(formatted_definition.options);
-			}
-			if (Array.isArray(options)) {
-				context.state[result.state_path].options = options;
-			} else {
-				throw new Error(
-					`Field definition "options" property must be an array or a string: ${formatted_definition.name || formatted_definition.fieldtype}`
-				);
-			}
-		}
 	}
 
 	async function handleTemplateDependenciesChanged() {
@@ -315,6 +293,27 @@
 				}
 			}
 			field_state.last_conditions_result = is_conditions_passed;
+		}
+
+		// options
+		if (formatted_definition?.options) {
+			let options = [];
+			if (Array.isArray(formatted_definition.options)) {
+				for (let option of formatted_definition.options) {
+					options.push({
+						label: await interpolateTemplate(option.label),
+						value: await interpolateTemplate(option.value)
+					});
+				}
+			} else if (typeof formatted_definition.options === 'string') {
+				options = await interpolateTemplate(formatted_definition.options);
+			}
+			if (!Array.isArray(options)) {
+				throw new Error(
+					`Field definition "options" property must be an array or a string: ${formatted_definition.name || formatted_definition.fieldtype}`
+				);
+			}
+			field_state.options = options;
 		}
 	}
 
