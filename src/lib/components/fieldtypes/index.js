@@ -7,6 +7,7 @@ import MultiSelect from './MultiSelect.svelte';
 import Pages from './Pages.svelte';
 import Select from './Select.svelte';
 import Text from './Text.svelte';
+import Textarea from './Textarea.svelte';
 
 export default {
 	array: Array,
@@ -18,4 +19,5 @@ export default {
 	pages: Pages,
 	select: Select,
 	text: Text,
+	textarea: Textarea,
 };

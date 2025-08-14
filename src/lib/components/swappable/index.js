@@ -5,6 +5,7 @@ import Heading from './Heading.svelte';
 import Html from './Html.svelte';
 import Pages from './Pages.svelte';
 import Text from './Text.svelte';
+import Textarea from './Textarea.svelte';
 import _Label from './_Label.svelte';
 import _Validation from './_Validation.svelte';
 import _FieldContainer from './_FieldContainer.svelte';
@@ -22,6 +23,7 @@ export default {
 	pages: Pages,
 	select: Select,
 	text: Text,
+	textarea: Textarea,
 
 	// other
 	_label: _Label,

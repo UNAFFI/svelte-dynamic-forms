@@ -76,6 +76,29 @@ Basic text input with validation and templating support.
 }
 ```
 
+### Textarea Field
+
+Multi-line text input field for longer content. Functions exactly like the text field but provides a larger input area.
+
+```javascript
+{
+  name: 'Description',
+  fieldtype: 'textarea',
+  placeholder: 'Enter a detailed description...',
+  validations: [
+    {
+      expression: '[[jsonata]]$length(data.description) >= 10',
+      error_message: 'Description must be at least 10 characters'
+    },
+    {
+      expression: '[[jsonata]]$length(data.description) <= 500',
+      error_message: 'Description must not exceed 500 characters'
+    }
+  ],
+  template_dependencies: ['data.description'] // Required for validation to re-evaluate
+}
+```
+
 ### Select Field
 
 Dropdown selection field with configurable options for single-value selection.
