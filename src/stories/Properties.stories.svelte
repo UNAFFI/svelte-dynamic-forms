@@ -478,3 +478,36 @@
 		}
 	}}
 ></Story>
+
+<!-- The value to store when the checkbox is checked. Used in the checkbox fieldtype (default is true) -->
+<Story
+	name="checked_value"
+	args={{
+		config: {
+			fields: [
+				{
+					name: 'Marketing Emails',
+					fieldtype: 'checkbox',
+					checked_value: 'yes'
+				}
+			]
+		}
+	}}
+></Story>
+
+<!-- The value to store when the checkbox is unchecked. Used in the checkbox fieldtype (default is false) -->
+<Story
+	name="unchecked_value"
+	args={{
+		config: {
+			fields: [
+				{
+					name: 'Newsletter Subscription',
+					fieldtype: 'checkbox',
+					checked_value: 'subscribed',
+					unchecked_value: 'unsubscribed'
+				}
+			]
+		}
+	}}
+></Story>

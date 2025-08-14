@@ -12,7 +12,3 @@
 </script>
 
 <swappable_components.time {label} {placeholder} {...rest} />
-
-<pre>
-    {JSON.stringify(rest.data_root, null, 2)}
-</pre>

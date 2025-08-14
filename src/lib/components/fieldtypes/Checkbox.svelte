@@ -42,7 +42,3 @@
 </script>
 
 <swappable_components.checkbox {toggle} {label} {...rest} />
-
-<pre>
-    {JSON.stringify(rest.data_root, null, 2)}
-</pre>
