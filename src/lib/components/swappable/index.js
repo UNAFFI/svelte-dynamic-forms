@@ -18,6 +18,8 @@ import _FieldContainer from './_FieldContainer.svelte';
 import Select from './Select.svelte';
 import MultiSelect from './MultiSelect.svelte';
 import Radio from './Radio.svelte';
+import Json from './Json.svelte';
+import Tel from './Tel.svelte';
 
 export default {
 	// fieldtypes
@@ -30,11 +32,13 @@ export default {
 	fieldset: Fieldset,
 	heading: Heading,
 	html: Html,
+	json: Json,
 	multiselect: MultiSelect,
 	number: Number,
 	pages: Pages,
 	radio: Radio,
 	select: Select,
+	tel: Tel,
 	text: Text,
 	textarea: Textarea,
 	time: Time,

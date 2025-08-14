@@ -12,6 +12,7 @@ export default {
 	pages: {},
 	radio: '',
 	select: '',
+	tel: "",
 	text: '',
 	textarea: '',
 	time: '',

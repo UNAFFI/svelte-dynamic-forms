@@ -1,5 +1,5 @@
 /**
- * @typedef {"array" | "checkbox" | "checkboxes" | "custom" | "date" | "datetime" | "fieldset" | "multiselect" | "number" | "pages" | "radio" | "select" | "text" | "textarea" | "time"} FieldType
+ * @typedef {"array" | "checkbox" | "checkboxes" | "custom" | "date" | "datetime" | "fieldset" | "json" | "multiselect" | "number" | "pages" | "radio" | "select" | "tel" | "text" | "textarea" | "time"} FieldType
  */
 
 /**
@@ -24,7 +24,7 @@
  * @property {FieldType} fieldtype - Determines the component to render
  * @property {string} [name] -  Used primarily to determine where the field will write data but it has UI implications as well (e.g. label and placeholder)
  * @property {string} [data_path] - Determines where in 'context.data' the field's value should be written (default is snake case of 'name')
- * @property {string} [default] - Will be set in the field's 'data_path' if no value is defined yet (evaluated as template on field mount)
+ * @property {any} [default] - Will be set in the field's 'data_path' if no value is defined yet (evaluated as template on field mount)
  * @property {string} [label] - Used in certain fieldtypes like text (evaluated whenever the template_dependencies change)
  * @property {boolean} [hide_label] - Set to true if you want to hide the field label
  * @property {string} [placeholder] - Used in certain fieldtypes like text (evaluated whenever the template_dependencies change)

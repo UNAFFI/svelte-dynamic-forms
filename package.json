@@ -65,6 +65,8 @@
 	],
 	"dependencies": {
 		"jsonata": "^2.1.0",
-		"mustache": "^4.2.0"
+		"mustache": "^4.2.0",
+		"svelte-jsoneditor": "^3.8.0",
+		"svelte-tel-input": "^3.6.0"
 	}
 }

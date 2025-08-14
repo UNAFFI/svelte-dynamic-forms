@@ -1004,6 +1004,368 @@ Display rich HTML content.
 }
 ```
 
+### JSON Field
+
+Structured data field that allows users to edit and store complex JSON objects. Perfect for configuration files, API requests, metadata, and any structured data that needs to be stored as JSON.
+
+```javascript
+{
+  name: 'API Configuration',
+  fieldtype: 'json',
+  label: 'Configure API settings',
+  validations: [
+    {
+      expression: '[[jsonata]]$exists(data.api_configuration)',
+      error_message: 'API configuration is required'
+    },
+    {
+      expression: '[[jsonata]]$exists(data.api_configuration.endpoint)',
+      error_message: 'API endpoint must be specified'
+    }
+  ],
+  template_dependencies: ['data.api_configuration']
+}
+```
+
+#### JSON Field Data Handling
+
+- **Object Storage**: Stores and retrieves complex JavaScript objects
+- **Nested Validation**: Validate nested properties and array elements using JSONata
+- **Type Checking**: Ensure specific data types for object properties
+- **Default Objects**: Set complex default structures using JSONata expressions
+- **Conditional Logic**: Show/hide based on object properties or structure
+- **Template Integration**: Use object properties in other field templates
+
+#### Advanced JSON Examples
+
+**Configuration object validation:**
+```javascript
+{
+  name: 'Database Configuration',
+  fieldtype: 'json',
+  label: 'Database connection settings',
+  default: {
+    host: "localhost",
+    port: 5432,
+    database: "myapp",
+    ssl: false
+  },
+  validations: [
+    {
+      expression: '[[jsonata]]$exists(data.database_configuration.host)',
+      error_message: 'Database host is required'
+    },
+    {
+      expression: '[[jsonata]]$exists(data.database_configuration.port)',
+      error_message: 'Database port is required'
+    },
+    {
+      expression: '[[jsonata]]$number(data.database_configuration.port) > 0 and $number(data.database_configuration.port) <= 65535',
+      error_message: 'Database port must be between 1 and 65535'
+    }
+  ],
+  template_dependencies: ['data.database_configuration']
+}
+```
+
+**API request data structure:**
+```javascript
+{
+  name: 'Request Body',
+  fieldtype: 'json',
+  label: 'HTTP request body (JSON)',
+  validations: [
+    {
+      expression: '[[jsonata]]data.request_method in ["POST", "PUT", "PATCH"] ? $exists(data.request_body) : true',
+      error_message: 'Request body is required for POST, PUT, and PATCH requests'
+    },
+    {
+      expression: '[[jsonata]]$type(data.request_body) = "object"',
+      error_message: 'Request body must be a valid JSON object'
+    }
+  ],
+  template_dependencies: ['data.request_method', 'data.request_body']
+}
+```
+
+**Nested object validation:**
+```javascript
+{
+  name: 'User Preferences',
+  fieldtype: 'json',
+  label: 'User preferences object',
+  default: {
+    theme: "light",
+    notifications: {
+      email: true,
+      push: false
+    },
+    language: "en"
+  },
+  validations: [
+    {
+      expression: '[[jsonata]]$exists(data.user_preferences.theme)',
+      error_message: 'Theme preference is required'
+    },
+    {
+      expression: '[[jsonata]]data.user_preferences.theme in ["light", "dark", "auto"]',
+      error_message: 'Theme must be light, dark, or auto'
+    },
+    {
+      expression: '[[jsonata]]$exists(data.user_preferences.language)',
+      error_message: 'Language preference is required'
+    },
+    {
+      expression: '[[jsonata]]$type(data.user_preferences.notifications) = "object"',
+      error_message: 'Notifications must be an object'
+    }
+  ],
+  template_dependencies: ['data.user_preferences']
+}
+```
+
+**Conditional object structure:**
+```javascript
+{
+  name: 'Advanced Settings',
+  fieldtype: 'json',
+  label: 'Advanced configuration object',
+  conditions: [
+    {
+      expression: '[[jsonata]]data.enable_advanced_mode = true'
+    }
+  ],
+  default: {
+    debug: false,
+    logLevel: "info",
+    maxRetries: 3
+  },
+  validations: [
+    {
+      expression: '[[jsonata]]$type(data.advanced_settings) = "object"',
+      error_message: 'Advanced settings must be a valid object'
+    },
+    {
+      expression: '[[jsonata]]$exists(data.advanced_settings.logLevel) ? data.advanced_settings.logLevel in ["debug", "info", "warn", "error"] : true',
+      error_message: 'Log level must be debug, info, warn, or error'
+    }
+  ],
+  template_dependencies: ['data.enable_advanced_mode', 'data.advanced_settings']
+}
+```
+
+**Array validation within JSON:**
+```javascript
+{
+  name: 'Form Schema',
+  fieldtype: 'json',
+  label: 'Form structure definition',
+  validations: [
+    {
+      expression: '[[jsonata]]$exists(data.form_schema.fields)',
+      error_message: 'Form schema must include a fields array'
+    },
+    {
+      expression: '[[jsonata]]$type(data.form_schema.fields) = "array"',
+      error_message: 'Fields must be an array'
+    },
+    {
+      expression: '[[jsonata]]$count(data.form_schema.fields) > 0',
+      error_message: 'At least one field must be defined'
+    },
+    {
+      expression: '[[jsonata]]$all(data.form_schema.fields, function($field) { $exists($field.fieldtype) })',
+      error_message: 'All fields must have a fieldtype property'
+    }
+  ],
+  template_dependencies: ['data.form_schema']
+}
+```
+
+#### JSON Field Data Storage
+
+The JSON field stores the parsed JSON object directly in the form data:
+
+```javascript
+// Example: If field name is "api_configuration" and user enters JSON
+context.data = {
+  api_configuration: {
+    endpoint: "https://api.example.com",
+    timeout: 5000,
+    retries: 3,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer token"
+    }
+  }
+}
+```
+
+### Tel Field
+
+Telephone input field with international country selection and automatic phone number formatting. Perfect for collecting phone numbers, mobile numbers, and contact information with proper validation and formatting.
+
+```javascript
+{
+  name: 'Phone Number',
+  fieldtype: 'tel',
+  label: 'Enter your phone number',
+  placeholder: 'Select country and enter number',
+  validations: [
+    {
+      expression: '[[jsonata]]$exists(data.phone_number)',
+      error_message: 'Phone number is required'
+    },
+    {
+      expression: '[[jsonata]]$length($trim(data.phone_number)) >= 10',
+      error_message: 'Please enter a valid phone number'
+    }
+  ],
+  template_dependencies: ['data.phone_number']
+}
+```
+
+#### Tel Field Features
+
+- **Country Selection**: Dropdown to select country with flag display
+- **Auto-formatting**: Phone numbers are automatically formatted according to the selected country's format
+- **International Support**: Supports phone number formats for all countries
+- **Real-time Validation**: Format validation as user types
+- **Accessibility**: Proper ARIA labels and keyboard navigation
+- **Consistent Styling**: Matches Material Design standards of other form components
+
+#### Advanced Tel Examples
+
+**Required phone number with format validation:**
+```javascript
+{
+  name: 'Mobile Number',
+  fieldtype: 'tel',
+  label: 'Mobile number (required)',
+  placeholder: 'Enter your mobile number',
+  validations: [
+    {
+      expression: '[[jsonata]]$exists(data.mobile_number)',
+      error_message: 'Mobile number is required'
+    },
+    {
+      expression: '[[jsonata]]$substring(data.mobile_number, 0, 1) = "+"',
+      error_message: 'Please include country code'
+    },
+    {
+      expression: '[[jsonata]]$length($replace(data.mobile_number, /[^0-9]/g, "")) >= 7',
+      error_message: 'Phone number must have at least 7 digits'
+    }
+  ],
+  template_dependencies: ['data.mobile_number']
+}
+```
+
+**Multiple phone numbers with different validation:**
+```javascript
+{
+  name: 'Contact Information',
+  fieldtype: 'fieldset',
+  fields: [
+    {
+      name: 'Primary Phone',
+      fieldtype: 'tel',
+      label: 'Primary phone number',
+      placeholder: 'Your main phone number',
+      validations: [
+        {
+          expression: '[[jsonata]]$exists(data.primary_phone)',
+          error_message: 'Primary phone number is required'
+        }
+      ],
+      template_dependencies: ['data.primary_phone']
+    },
+    {
+      name: 'Emergency Contact',
+      fieldtype: 'tel',
+      label: 'Emergency contact number',
+      placeholder: 'Emergency contact phone',
+      validations: [
+        {
+          expression: '[[jsonata]]$exists(data.emergency_contact)',
+          error_message: 'Emergency contact is required'
+        },
+        {
+          expression: '[[jsonata]]data.emergency_contact != data.primary_phone',
+          error_message: 'Emergency contact must be different from primary phone'
+        }
+      ],
+      template_dependencies: ['data.emergency_contact', 'data.primary_phone']
+    }
+  ]
+}
+```
+
+**Conditional phone number based on contact preference:**
+```javascript
+{
+  name: 'Contact Method',
+  fieldtype: 'select',
+  options: [
+    { label: 'Email', value: 'email' },
+    { label: 'Phone', value: 'phone' },
+    { label: 'SMS', value: 'sms' }
+  ]
+},
+{
+  name: 'Phone Number',
+  fieldtype: 'tel',
+  label: 'Your phone number',
+  placeholder: 'Enter phone number',
+  conditions: [
+    {
+      expression: '[[jsonata]]data.contact_method in ["phone", "sms"]'
+    }
+  ],
+  validations: [
+    {
+      expression: '[[jsonata]]data.contact_method in ["phone", "sms"] ? $exists(data.phone_number) : true',
+      error_message: 'Phone number is required for phone/SMS contact'
+    }
+  ],
+  template_dependencies: ['data.contact_method', 'data.phone_number']
+}
+```
+
+**Business hours phone with custom validation:**
+```javascript
+{
+  name: 'Business Phone',
+  fieldtype: 'tel',
+  label: 'Business phone number',
+  placeholder: 'Business contact number',
+  validations: [
+    {
+      expression: '[[jsonata]]$exists(data.business_phone)',
+      error_message: 'Business phone number is required'
+    },
+    {
+      expression: '[[jsonata]]$not($contains(data.business_phone, "mobile")) or $length($replace(data.business_phone, /[^0-9]/g, "")) >= 10',
+      error_message: 'Please enter a valid business phone number'
+    }
+  ],
+  template_dependencies: ['data.business_phone']
+}
+```
+
+#### Tel Field Data Storage
+
+The tel field stores the formatted phone number as a string in international format:
+
+```javascript
+// Example: If field name is "phone_number" and user enters a US number
+context.data = {
+  phone_number: "+1 (555) 123-4567"  // Formatted international number
+}
+```
+
+The phone number is automatically formatted according to the selected country's standard format and includes the country code prefix.
+
 ### Custom Field
 
 Use your own custom components.

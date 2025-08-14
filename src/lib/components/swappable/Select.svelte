@@ -24,7 +24,6 @@
 	const filtered_options = $derived(options.filter((/** @type {any} */ o) => !o.is_filtered_out));
 	const selected_option = $derived(options.find((/** @type {any} */ o) => o.is_selected));
 	const display_text = $derived(selected_option?.label || placeholder || '');
-	const search_text = $derived(rest.state_root.select_filter_text || '');
 
 	// functions
 	function toggleDropdown() {
