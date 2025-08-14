@@ -177,6 +177,77 @@ Multiple selection field using checkboxes for selecting several options from a l
 }
 ```
 
+### Date Field
+
+Date selection field that allows users to pick dates using the browser's native date picker. Functions similarly to the text field but specifically for date input.
+
+```javascript
+{
+  name: 'Birth Date',
+  fieldtype: 'date',
+  label: 'When were you born?',
+  validations: [
+    {
+      expression: '[[jsonata]]$exists(data.birth_date)',
+      error_message: 'Please select your birth date'
+    },
+    {
+      expression: '[[jsonata]]$millis() - $toMillis(data.birth_date) >= (18 * 365.25 * 24 * 60 * 60 * 1000)',
+      error_message: 'You must be at least 18 years old'
+    }
+  ],
+  template_dependencies: ['data.birth_date'] // Required for validation to re-evaluate
+}
+```
+
+#### Advanced Date Examples
+
+**Future date validation:**
+```javascript
+{
+  name: 'Event Date',
+  fieldtype: 'date',
+  label: 'Event date (must be in the future)',
+  validations: [
+    {
+      expression: '[[jsonata]]$toMillis(data.event_date) > $millis()',
+      error_message: 'Event date must be in the future'
+    }
+  ],
+  template_dependencies: ['data.event_date']
+}
+```
+
+**Dynamic default date (one week from now):**
+```javascript
+{
+  name: 'Appointment Date',
+  fieldtype: 'date',
+  label: 'Preferred appointment date',
+  default: '[[jsonata]]$fromMillis($millis() + (7 * 24 * 60 * 60 * 1000), "[Y0001]-[M01]-[D01]")'
+}
+```
+
+**Date range validation:**
+```javascript
+{
+  name: 'Project Deadline',
+  fieldtype: 'date',
+  label: 'Project deadline',
+  validations: [
+    {
+      expression: '[[jsonata]]$toMillis(data.project_deadline) >= $toMillis(data.project_start_date)',
+      error_message: 'Deadline must be after the start date'
+    },
+    {
+      expression: '[[jsonata]]$toMillis(data.project_deadline) <= $millis() + (365 * 24 * 60 * 60 * 1000)',
+      error_message: 'Deadline cannot be more than one year from now'
+    }
+  ],
+  template_dependencies: ['data.project_deadline', 'data.project_start_date']
+}
+```
+
 ### Select Field
 
 Dropdown selection field with configurable options for single-value selection.

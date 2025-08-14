@@ -1,5 +1,5 @@
 /**
- * @typedef {"array" | "checkboxes" | "custom" | "fieldset" | "multiselect" | "pages" | "radio" | "select" | "text" | "textarea"} FieldType
+ * @typedef {"array" | "checkboxes" | "custom" | "date" | "fieldset" | "multiselect" | "pages" | "radio" | "select" | "text" | "textarea"} FieldType
  */
 
 /**

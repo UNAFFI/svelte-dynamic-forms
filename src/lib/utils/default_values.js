@@ -4,6 +4,7 @@
 export default {
 	array: [],
 	checkboxes: [],
+	date: '',
 	fieldset: {},
 	multiselect: [],
 	pages: {},
