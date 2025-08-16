@@ -1,35 +1,29 @@
+import jsonata from 'jsonata';
+import Mustache from 'mustache';
+
 /**
- * @param {string} [name]
- * @returns {string} Key derived from the name.
+ * @description Returns lowercase and replace whitespaces with single underscore and trim
+ * @param {string} [string] Unformatted string
+ * @returns {string} Formatted string
  */
-export function getKeyFromName(name = '') {
-	// return lowercase and replace whitespaces with single underscore and trim
-	return name.toLowerCase().trim().replace(/\s+/g, '_');
+export function stringToSnakeCase(string = '') {
+	return string.toLowerCase().trim().replace(/\s+/g, '_');
 }
 
-export function getFormId() {
-	// return 12 character random string
+/**
+ * @description Returns a random 12 character string.
+ * @returns {string} A random 12 character string.
+ */
+export function randomId() {
 	return Math.random().toString(36).substring(2, 14);
 }
 
 /**
- * @summary Debounce function to limit how often a function is called.
- *
- * @description
- * This function returns a new function that executes immediately on the first call,
- * then debounces subsequent calls within the delay period. It returns a promise 
- * that resolves with the result of the function execution.
- *
- * @example
- * const debouncedHello = debounce(() => console.log('Hello'), 1000);
- * // First call executes immediately, subsequent calls within 1000ms are debounced
- *
+ * @description Creates a debounced version of a function that delays its execution until after a specified delay period.
  * @template T
  * @param {(...args: any[]) => T | Promise<T>} func - The function to debounce.
  * @param {number} delay - The delay in milliseconds.
  * @returns {(...args: any[]) => Promise<T>} - A new function that debounces the execution of the original function.
- *
- * @since 1.0.0
  */
 export function debounce(func, delay) {
 	/**@type {number | NodeJS.Timeout} */
@@ -42,14 +36,14 @@ export function debounce(func, delay) {
 			// Execute immediately on first call
 			if (isFirstCall) {
 				isFirstCall = false;
-				
+
 				// Execute the function and handle the result
 				const executeAndResolve = async () => {
 					const result = await func(...args);
 					resolve(result);
 				};
 				executeAndResolve();
-				
+
 				// Set timeout to reset the first call flag
 				timeout = setTimeout(() => {
 					isFirstCall = true;
@@ -67,4 +61,45 @@ export function debounce(func, delay) {
 			}, delay);
 		});
 	};
+}
+
+/**
+ * @description Evaluates a template using Mustache or JSONata based on the context provided.
+ * @param {any} [template]
+ * @param {any} [context]
+ * @returns {Promise<any>}
+ */
+export async function evaluateTemplate(template, context) {
+	if (template === undefined) return;
+	if (!context) return template;
+	try {
+		let result;
+
+		if (Array.isArray(template)) {
+			const promises = template.map((item) => evaluateTemplate(item, context));
+			result = await Promise.all(promises);
+		} else if (typeof template === 'object') {
+			const promises = Object.entries(template).map(async ([key, value]) => {
+				const evaluatedValue = await evaluateTemplate(value, context);
+				return [key, evaluatedValue];
+			});
+			result = Object.fromEntries(await Promise.all(promises));
+		} else if (typeof template === 'string') {
+			// get the templating key from the start of the template (if any). The templating key is inside two square brackets like [[jsonata]] = templating language - jsonata
+			const templating_key = template.match(/\[\[(.*?)\]\]/)?.[1];
+
+			if (templating_key === 'jsonata') {
+				const template_part = template.match(/\[\[jsonata\]\](.*)/)?.[1] ?? '';
+				result = await jsonata(template_part).evaluate(context);
+			} else {
+				result = Mustache.render(template, context);
+			}
+		} else {
+			result = template;
+		}
+		return result;
+	} catch (err) {
+		console.error(`Error interpolating template "${template}":`, err);
+	}
+	return;
 }

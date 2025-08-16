@@ -1,2 +1,6 @@
-export const FORM_CONTEXT = Symbol('FORM_CONTEXT');
-export const SWAPPABLE_COMPONENTS = Symbol('SWAPPABLE_COMPONENTS');
+export const COMPONENTS = Symbol('COMPONENTS');
+export const CONTEXT = Symbol('CONTEXT');
+export const DATA = Symbol('DATA');
+export const DEFAULT_VALUES = Symbol('DEFAULT_VALUES');
+export const METADATA = Symbol('METADATA');
+export const SETTINGS = Symbol('SETTINGS');

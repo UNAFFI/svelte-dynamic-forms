@@ -1,108 +1,126 @@
 <script>
 	// imports
-	import { SWAPPABLE_COMPONENTS, FORM_CONTEXT } from '../symbols';
+
+	import { COMPONENTS, CONTEXT, DATA, DEFAULT_VALUES, METADATA, SETTINGS } from '../symbols';
 	import { onMount, setContext } from 'svelte';
+	import { randomId } from '$lib/utils';
 	import Field from './Field.svelte';
-	import swappable from './swappable';
-	import { getFormId } from '$lib/utils';
 
 	// props
-	/** @type {FormProps} */
-	let { context = $bindable({}), config = {}, swappable_components = {} } = $props();
+	/** @type {FormProps}*/
+	let {
+		form_id,
+		show_validation,
+		fields,
+		components = {},
+		context = $bindable(),
+		data = $bindable(),
+		default_values = {},
+		metadata = $bindable(),
+		settings = $bindable(),
+		// @ts-ignore
+		children
+	} = $props();
 
-	// constants
-	const MAX_VALIDATION_TIME = 5000; // Validation should not take longer than 5 seconds
-	const VALIDATION_CHECK_INTERVAL = 100; // Try validation 100 ms apart
-	let is_validation_time_exceeded = false; // If true, validation took too long
-
-	// set context
-	setContext(FORM_CONTEXT, context);
-	setContext(SWAPPABLE_COMPONENTS, {
-		...swappable,
-		...swappable_components
-	});
-
-	// state
+	// set state
 	let is_initialized = $state(false);
 
 	// on mount
 	onMount(() => {
 		initForm();
+
+		// set context
+		setContext(COMPONENTS, components);
+		setContext(CONTEXT, context);
+		setContext(DATA, data);
+		setContext(DEFAULT_VALUES, default_values);
+		setContext(METADATA, metadata);
+		setContext(SETTINGS, settings);
+
+		// set is_initialized
+		is_initialized = true;
 	});
 
 	// functions
 	function initForm() {
-		context.state = {}; // Initialize the state for all fields
-		context.show_validation = Boolean(config.show_validation); // Whether to show validation messages
-		context.form_id = config.form_id || getFormId(); // The unique identifier for the form
-		is_initialized = true; // Set to true so the form can render
+		if (!data) data = {}; // ensure data is an object
+		metadata = {}; // reset metadata
+		settings = {
+			form_id: form_id || 'form_' + randomId(),
+			validations: {}
+		}; // reset settings
+		settings.validations.is_show = Boolean(show_validation);
+		settings.validations.max_time = 5000;
+		settings.validations.check_interval = 100;
 	}
 
-	// This function gets called recursively until all fields are validated or the timeout is reached
-	/** @returns {Promise<FormValidationResult>} */
 	async function checkValidation() {
-		// Initialize the result
-		/** @type {FormValidationResult} */
-		const result = {
-			is_valid: false,
-			is_validation_timeout: false,
-			is_validation_failed: false,
-			issues: []
-		};
-		// loop through every state key and make sure that it is both checked and valid
-		for (const key in context.state) {
-			const field_state = context.state[key];
-			if (field_state.is_validation_checked) {
-				if (!field_state.is_valid) {
-					result.issues.push({
-						state_path: key,
-						error_message: field_state.validation_error_message
+		if (!settings) return;
+		settings.validations.issues = [];
+		// loop through every metadata key and make sure that it is both checked and valid
+		for (const field_id in metadata) {
+			const field_metadata = metadata[field_id];
+			if (field_metadata.dependencies_changed) {
+				settings.validations.is_failed = true;
+				break;
+			} else {
+				if (!field_metadata.validations.is_valid) {
+					settings.validations.issues.push({
+						field_id,
+						error_message: field_metadata.validations.error_message
 					});
 				}
-			} else {
-				result.is_validation_failed = true;
-				break;
 			}
 		}
 
-		if (result.is_validation_failed) {
-			if (is_validation_time_exceeded) {
-				result.is_validation_timeout = true;
-			} else {
+		if (settings.validations.is_failed) {
+			if (!settings.validations.is_timeout) {
 				await new Promise((resolve) => {
 					setTimeout(() => {
 						resolve(true);
-					}, VALIDATION_CHECK_INTERVAL);
+					}, settings?.validations?.check_interval);
 				});
 				return checkValidation();
 			}
 		} else {
-			result.is_valid = result.issues.length === 0;
+			settings.validations.is_valid = settings.validations.issues.length === 0;
 		}
 
-		return result;
+		return;
 	}
 
 	// This function is called from outside the form to enable pre-submit validation
 	export async function validate() {
-		context.show_validation = true;
-		is_validation_time_exceeded = true;
+		if (!settings) return;
+		const start_time = new Date().getTime();
+		settings.validations.is_show = true;
+		settings.validations.is_valid = false;
+		settings.validations.is_failed = false;
+		settings.validations.is_timeout = false;
 
-		setTimeout(() => {
-			is_validation_time_exceeded = true;
-		}, MAX_VALIDATION_TIME);
+		const timeout = setTimeout(() => {
+			if (!settings) return;
+			settings.validations.is_timeout = true;
+		}, settings?.validations?.max_time);
 
-		return await checkValidation();
+		await checkValidation();
+
+		if (!settings.validations.is_timeout) {
+			clearTimeout(timeout);
+			const end_time = new Date().getTime();
+			settings.validations.duration = end_time - start_time;
+		}
+
+		return;
 	}
 </script>
 
 {#if is_initialized === true}
-	<Field
-		definition={{
-			name: 'form',
-			data_path: 'data',
-			fieldtype: 'fieldset',
-			fields: config.fields
-		}}
-	/>
+	{#if fields}
+		{#each fields as field}
+			<Field {...field} />
+		{/each}
+	{:else}
+		{@render children()}
+	{/if}
 {/if}
