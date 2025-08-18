@@ -7,6 +7,8 @@
       <a href="#api">API</a>
       <a href="#concepts">Concepts</a>
       <a href="#about">About UNAFFI</a>
+      <a href="https://github.com/UNAFFI/svelte-dynamic-forms" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://www.npmjs.com/package/svelte-dynamic-forms" target="_blank" rel="noopener">npm</a>
     </nav>
   </div>
   <div class="sub">Interactive docs — explore validations, conditions, and dynamic settings</div>
@@ -28,7 +30,16 @@
 <main class="container">
   <slot />
   <footer class="site-footer">
-    <div>MIT Licensed • Built with SvelteKit</div>
+    <div class="footer-grid">
+      <div>MIT Licensed • Built with SvelteKit</div>
+      <div class="links">
+        <a href="https://github.com/UNAFFI/svelte-dynamic-forms" target="_blank" rel="noopener">GitHub</a>
+        <span>•</span>
+        <a href="https://www.npmjs.com/package/svelte-dynamic-forms" target="_blank" rel="noopener">npm</a>
+        <span>•</span>
+        <a href="https://svelte-dynamic-forms.unaffi.com/" target="_blank" rel="noopener">Docs</a>
+      </div>
+    </div>
   </footer>
 </main>
 
@@ -50,6 +61,10 @@
   .site-header nav a:hover { background: #f1f5f9; }
   .site-header .sub { font-size: .9rem; color: #475569; border-top: 1px solid #e2e8f0; padding: .5rem 1rem; }
   .site-footer { margin-top: 3rem; padding: 1rem 0; color: #64748b; border-top: 1px solid #e2e8f0; text-align: center; }
+  .footer-grid { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .links { display: inline-flex; gap: .5rem; align-items: center; }
+  .links a { color: #334155; text-decoration: none; }
+  .links a:hover { text-decoration: underline; }
   :global(h2) { margin-top: 2rem; }
   :global(section) { scroll-margin-top: 4.5rem; }
 </style>

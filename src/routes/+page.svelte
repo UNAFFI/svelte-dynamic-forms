@@ -1,9 +1,9 @@
 <script>
 	import { Form, Field } from '$lib';
-	import TextInput from '$lib/demo/TextInput.svelte';
-	import EmailInput from '$lib/demo/EmailInput.svelte';
-	import SelectInput from '$lib/demo/SelectInput.svelte';
-	import CheckboxInput from '$lib/demo/CheckboxInput.svelte';
+	import TextInput from './demo/TextInput.svelte';
+	import EmailInput from './demo/EmailInput.svelte';
+	import SelectInput from './demo/SelectInput.svelte';
+	import CheckboxInput from './demo/CheckboxInput.svelte';
 
 		/** @type {any} */
 		let data = $state({});
