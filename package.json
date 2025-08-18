@@ -1,6 +1,6 @@
 {
 	"name": "svelte-dynamic-forms",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "A dynamic form library for Svelte 5 with validation, conditional field rendering, reactive dependencies, and template-based configuration",
 	"license": "MIT",
 	"author": "UNAFFI",
@@ -41,6 +41,9 @@
 			"types": "./dist/types/index.d.ts",
 			"svelte": "./dist/index.js"
 		}
+	},
+	"publishConfig": {
+		"access": "public"
 	},
 	"peerDependencies": {
 		"svelte": "^5.0.0"

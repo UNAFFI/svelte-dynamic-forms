@@ -91,9 +91,14 @@ export async function evaluateTemplate(template, context) {
 			if (templating_key === 'jsonata') {
 				const template_part = template.match(/\[\[jsonata\]\](.*)/)?.[1] ?? '';
 				result = await jsonata(template_part).evaluate(context);
-			} else {
-				result = Mustache.render(template, context);
-			}
+					} else {
+						const renderer = /** @type {any} */ (Mustache)?.render;
+						if (typeof renderer === 'function') {
+							result = renderer(template, context);
+						} else {
+							result = template;
+						}
+					}
 		} else {
 			result = template;
 		}
