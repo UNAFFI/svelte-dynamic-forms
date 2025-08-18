@@ -90,15 +90,12 @@
 
 			// set fieldtype
 			const fieldtype = await evaluateTemplate(rest?.fieldtype, evaluation_context);
-			if (!fieldtype) {
-				throw new Error(`${rest.name}: "fieldtype" is missing`);
-			}
 
 			// set name
 			let name = await evaluateTemplate(rest?.name, evaluation_context);
 			if (!name) {
 				console.warn(`${fieldtype}: "name" is missing, using ${fieldtype}`);
-				name = fieldtype;
+				if (fieldtype) name = fieldtype;
 			}
 			// make sure the name has only letters, numbers and whitespace
 			const is_corrupted_name = /[^a-zA-Z0-9\s]/.test(name);
@@ -110,7 +107,7 @@
 
 			// set field_id
 			const parent_field_id = rest.parent_field_id;
-			let field_id = stringToSnakeCase(name);
+			let field_id = stringToSnakeCase(name) || randomId();
 			if (parent_field_id) {
 				field_id = `${parent_field_id}.${field_id}`;
 			}
