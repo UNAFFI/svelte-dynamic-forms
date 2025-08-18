@@ -1,4 +1,4 @@
-# UNAFFI Dynamic Forms
+# Svelte Dynamic Forms
 
 A dynamic form library for **Svelte 5** with validation, conditional field rendering, reactive dependencies, and template-based configuration.
 
@@ -19,7 +19,7 @@ The Field component renders individual form fields with dynamic behavior. When u
 
 ```svelte
 <script>
-	import { Field } from 'unaffi-dynamic-forms';
+	import { Field } from 'svelte-dynamic-forms';
 	import TextInput from './TextInput.svelte';
 
 	let fieldData = $state({});
@@ -241,7 +241,7 @@ Define all fields in a single array for automatic rendering:
 
 ```svelte
 <script>
-	import { Form } from 'unaffi-dynamic-forms';
+	import { Form } from 'svelte-dynamic-forms';
 
 	let formData = $state({});
 	let formMetadata = $state({});
@@ -278,7 +278,7 @@ Place Field components as children for custom layout control:
 
 ```svelte
 <script>
-	import { Form, Field } from 'unaffi-dynamic-forms';
+	import { Form, Field } from 'svelte-dynamic-forms';
 
 	let formData = $state({});
 	const components = { text: TextInput };
