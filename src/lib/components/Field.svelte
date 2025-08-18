@@ -356,6 +356,6 @@
 
 {#if DynamicComponent && field_metadata?.conditions?.is_passed === true}
 	<div id="{settings?.form_id ? settings?.form_id + '-' : ''}{field_metadata.field_id}">
-		<DynamicComponent bind:field_metadata bind:field_data />
+		<DynamicComponent bind:field_metadata bind:field_data {settings} />
 	</div>
 {/if}
