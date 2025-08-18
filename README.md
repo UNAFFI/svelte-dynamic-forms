@@ -439,6 +439,163 @@ The form data object where all field values are stored:
 
 ## Concepts
 
+### Component Interface
+
+The Field component passes only two reactive properties to your custom components: `field_metadata` and `field_data`. Understanding this simple interface is crucial for building custom field components.
+
+#### What Your Component Receives
+
+```svelte
+<!-- YourCustomComponent.svelte -->
+<script>
+  let { field_metadata = $bindable(), field_data = $bindable() } = $props();
+  
+  // field_metadata contains all field configuration and state
+  // field_data contains the actual form data object where this field writes its value
+</script>
+```
+
+#### field_metadata Structure
+
+The `field_metadata` object contains everything about the field's configuration and current state:
+
+```javascript
+{
+  field_id: 'first_name',           // Unique field identifier
+  data_key: 'first_name',          // Key where field writes its value
+  init_value: 'John',              // Initial value from form data
+  default_value: '',               // Default value for this field type
+  
+  // Validation state (reactive)
+  validations: {
+    is_valid: true,
+    error_message: '',
+    checks: [...]
+  },
+  
+  // Condition state (reactive)
+  conditions: {
+    is_passed: true,
+    previous_result: true
+  },
+  
+  // Reactive settings (updates when dependencies change)
+  dynamic_settings: {
+    placeholder: 'Enter your name',
+    disabled: false
+  },
+  
+  // Field definition (static configuration)
+  definition: {
+    name: 'First Name',
+    fieldtype: 'text',
+    settings: {
+      label: 'First Name',
+      required: true
+    },
+    // ... other static properties
+  }
+}
+```
+
+#### field_data Structure
+
+The `field_data` object is where your component reads and writes the field's value:
+
+```svelte
+<script>
+  let { field_metadata = $bindable(), field_data = $bindable() } = $props();
+  
+  // Get the current value
+  const currentValue = $derived(field_data?.[field_metadata?.data_key] || '');
+  
+  // Update the value
+  function updateValue(newValue) {
+    if (field_data && field_metadata?.data_key) {
+      field_data[field_metadata.data_key] = newValue;
+    }
+  }
+</script>
+
+<input 
+  value={currentValue}
+  oninput={(e) => updateValue(e.target.value)}
+/>
+```
+
+#### Complete Component Example
+
+```svelte
+<!-- TextInput.svelte -->
+<script>
+  let { field_metadata = $bindable(), field_data = $bindable() } = $props();
+  
+  // Extract commonly used values
+  const fieldId = $derived(field_metadata?.field_id);
+  const dataKey = $derived(field_metadata?.data_key);
+  const currentValue = $derived(field_data?.[dataKey] || '');
+  const isValid = $derived(field_metadata?.validations?.is_valid !== false);
+  const errorMessage = $derived(field_metadata?.validations?.error_message);
+  
+  // Get static settings
+  const settings = $derived(field_metadata?.definition?.settings || {});
+  
+  // Get dynamic settings (reactive)
+  const dynamicSettings = $derived(field_metadata?.dynamic_settings || {});
+  
+  // Combine configuration
+  const config = $derived({ ...settings, ...dynamicSettings });
+  
+  function handleInput(event) {
+    if (field_data && dataKey) {
+      field_data[dataKey] = event.target.value;
+    }
+  }
+</script>
+
+<div class="field-wrapper">
+  {#if config.label}
+    <label for={fieldId}>{config.label}</label>
+  {/if}
+  
+  <input
+    id={fieldId}
+    type="text"
+    value={currentValue}
+    placeholder={config.placeholder}
+    disabled={config.disabled}
+    required={config.required}
+    class:error={!isValid}
+    oninput={handleInput}
+  />
+  
+  {#if !isValid && errorMessage}
+    <span class="error-message">{errorMessage}</span>
+  {/if}
+</div>
+
+<style>
+  .error {
+    border-color: red;
+  }
+  
+  .error-message {
+    color: red;
+    font-size: 0.875rem;
+  }
+</style>
+```
+
+#### Key Principles
+
+1. **Two-way binding**: Your component must bind to both `field_metadata` and `field_data`
+2. **Read from field_data**: Get the current value using `field_data[field_metadata.data_key]`
+3. **Write to field_data**: Update values by modifying `field_data[field_metadata.data_key]`
+4. **Configuration access**: Use `field_metadata.definition.settings` (static) and `field_metadata.dynamic_settings` (reactive)
+5. **Validation state**: Check `field_metadata.validations` for validation results
+
+This simple interface gives your components everything they need while keeping the API clean and predictable.
+
 ### Template Evaluation
 
 The library supports dynamic configuration through template expressions using two engines: **Mustache** (default) and **JSONata** (with `[[jsonata]]` prefix). Understanding when templates are evaluated is crucial for building reactive forms.
