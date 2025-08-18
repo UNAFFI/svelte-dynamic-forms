@@ -2,6 +2,92 @@
 
 A dynamic form library for **Svelte 5** with validation, conditional field rendering, reactive dependencies, and template-based configuration.
 
+## Installation
+
+```bash
+npm install svelte-dynamic-forms
+```
+
+## Quick Start
+
+Create a simple form with validation and conditional fields:
+
+```svelte
+<script>
+	import { Form, Field } from 'svelte-dynamic-forms';
+	import TextInput from './TextInput.svelte';
+	import EmailInput from './EmailInput.svelte';
+
+	let formData = $state({});
+	let formMetadata = $state({});
+
+	const components = { 
+		text: TextInput, 
+		email: EmailInput 
+	};
+
+	const fields = [
+		{ 
+			fieldtype: 'text', 
+			name: 'First Name',
+			validations: [
+				{
+					expression: '[[jsonata]]$length(field_data.first_name) >= 2',
+					error_message: 'Name must be at least 2 characters'
+				}
+			]
+		},
+		{ 
+			fieldtype: 'email', 
+			name: 'Email Address',
+			dependencies: ['data.first_name'],
+			conditions: [
+				{
+					expression: '[[jsonata]]data.first_name and $length(data.first_name) > 0'
+				}
+			]
+		}
+	];
+
+	// Access form validation state
+	$effect(() => {
+		console.log('Form valid:', formMetadata?.validations?.is_valid);
+		console.log('Form data:', formData);
+	});
+</script>
+
+<Form 
+	bind:data={formData} 
+	bind:metadata={formMetadata}
+	{fields} 
+	{components} 
+/>
+```
+
+### Basic Custom Component
+
+Create input components that work with the library:
+
+```svelte
+<!-- TextInput.svelte -->
+<script>
+	let { field_metadata = $bindable(), field_data = $bindable() } = $props();
+	
+	const value = $derived(field_data?.[field_metadata?.data_key] || '');
+	const isValid = $derived(field_metadata?.validations?.is_valid !== false);
+	const errorMessage = $derived(field_metadata?.validations?.error_message);
+</script>
+
+<input
+	type="text"
+	bind:value={field_data[field_metadata?.data_key]}
+	class:error={!isValid}
+/>
+{#if !isValid && errorMessage}
+	<span class="error">{errorMessage}</span>
+{/if}
+```
+
 ## Key Features
 
 - 🔄 **Dynamic Field Rendering** - Show/hide fields based on conditions
@@ -10,6 +96,26 @@ A dynamic form library for **Svelte 5** with validation, conditional field rende
 - 🎯 **Default Values** - Smart default value management per field type
 - 📝 **Template Support** - Mustache and JSONata expressions for dynamic configuration
 - ⚡ **Svelte 5 Native** - Built with modern Svelte 5 runes and patterns
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [API Reference](#api-reference)
+  - [Field Component](#field-component)
+  - [Form Component](#form-component)
+- [Concepts](#concepts)
+  - [Component Interface](#component-interface)
+  - [Template Evaluation](#template-evaluation)
+  - [Settings and Dynamic Settings](#settings-and-dynamic-settings)
+- [Requirements](#requirements)
+- [Browser Support](#browser-support)
+- [Roadmap](#roadmap)
+- [License](#license)
+- [Contributing](#contributing)
+- [Support](#support)
+
+## API Reference
 
 ## Field Component
 
@@ -853,3 +959,38 @@ Your custom components receive these settings through the field metadata:
 ```
 
 The key principle is that **settings** are for static configuration that won't change, while **dynamic_settings** are for reactive configuration that updates based on form state or other dependencies.
+
+## Requirements
+
+- **Svelte 5.0+** - This library is built specifically for Svelte 5 and uses modern runes
+- **Node.js 18+** - For development and build processes
+
+## Browser Support
+
+Works in all modern browsers that support ES2022:
+- Chrome 94+
+- Firefox 93+
+- Safari 15+
+- Edge 94+
+
+## Roadmap
+
+- [ ] File upload field components
+- [ ] Date/time picker components  
+- [ ] Rich text editor integration
+- [ ] Form builder UI
+- [ ] Schema validation integration (Zod, Yup)
+- [ ] Accessibility improvements
+- [ ] Performance optimizations
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
+## Support
+
+If you encounter any issues or have questions, please [open an issue](https://github.com/UNAFFI/svelte-dynamic-forms/issues) on GitHub.

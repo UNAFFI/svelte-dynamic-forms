@@ -1,7 +1,17 @@
 {
 	"name": "svelte-dynamic-forms",
 	"version": "0.0.1",
+	"description": "A dynamic form library for Svelte 5 with validation, conditional field rendering, reactive dependencies, and template-based configuration",
 	"license": "MIT",
+	"author": "UNAFFI",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/UNAFFI/svelte-dynamic-forms.git"
+	},
+	"homepage": "https://github.com/UNAFFI/svelte-dynamic-forms",
+	"bugs": {
+		"url": "https://github.com/UNAFFI/svelte-dynamic-forms/issues"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack",
@@ -61,7 +71,15 @@
 		"vite": "^7.0.4"
 	},
 	"keywords": [
-		"svelte"
+		"svelte",
+		"svelte5",
+		"forms",
+		"dynamic-forms",
+		"validation",
+		"reactive",
+		"components",
+		"ui",
+		"frontend"
 	],
 	"dependencies": {
 		"jsonata": "^2.1.0",
