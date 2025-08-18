@@ -109,8 +109,6 @@ Create input components that work with the library:
   - [Template Evaluation](#template-evaluation)
   - [Settings and Dynamic Settings](#settings-and-dynamic-settings)
 - [Requirements](#requirements)
-- [Browser Support](#browser-support)
-- [Roadmap](#roadmap)
 - [License](#license)
 - [Contributing](#contributing)
 - [Support](#support)
