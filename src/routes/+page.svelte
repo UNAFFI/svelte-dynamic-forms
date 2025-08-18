@@ -88,7 +88,7 @@
 			fieldtype: 'text',
 			name: 'Username',
 			settings: { label: 'Username' },
-			dependencies: ['data.first_name', 'data.last_name'],
+			dependencies: ['data.first_name', 'data.last_name', 'field_data.username'],
 			dynamic_settings: {
 				placeholder: '[[jsonata]](data.first_name and data.last_name) ? (data.first_name & "." & data.last_name) : "Pick a username"'
 			},
@@ -121,6 +121,7 @@
 			name: 'City',
 			settings: { label: 'City' },
 			data_path: 'address.city',
+            dependencies: ["field_data.city"],
 			validations: [
 				{ expression: '[[jsonata]]$length(field_data.city) > 0', error_message: 'City is required' }
 			]
