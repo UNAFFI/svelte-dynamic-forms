@@ -965,24 +965,6 @@ The key principle is that **settings** are for static configuration that won't c
 - **Svelte 5.0+** - This library is built specifically for Svelte 5 and uses modern runes
 - **Node.js 18+** - For development and build processes
 
-## Browser Support
-
-Works in all modern browsers that support ES2022:
-- Chrome 94+
-- Firefox 93+
-- Safari 15+
-- Edge 94+
-
-## Roadmap
-
-- [ ] File upload field components
-- [ ] Date/time picker components  
-- [ ] Rich text editor integration
-- [ ] Form builder UI
-- [ ] Schema validation integration (Zod, Yup)
-- [ ] Accessibility improvements
-- [ ] Performance optimizations
-
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
