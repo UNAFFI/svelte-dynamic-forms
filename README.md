@@ -2,6 +2,8 @@
 
 A dynamic form library for **Svelte 5** with validation, conditional field rendering, reactive dependencies, and template-based configuration.
 
+👉 Docs & Playground: https://svelte-dynamic-forms.unaffi.com/
+
 ## Installation
 
 ```bash
@@ -973,4 +975,4 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 
 ## Support
 
-If you encounter any issues or have questions, please [open an issue](https://github.com/UNAFFI/svelte-dynamic-forms/issues) on GitHub.
+If you encounter any issues or have questions, please visit the docs at https://svelte-dynamic-forms.unaffi.com/ or [open an issue](https://github.com/UNAFFI/svelte-dynamic-forms/issues) on GitHub.

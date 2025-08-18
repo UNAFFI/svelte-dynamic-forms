@@ -8,7 +8,7 @@
 		"type": "git",
 		"url": "git+https://github.com/UNAFFI/svelte-dynamic-forms.git"
 	},
-	"homepage": "https://github.com/UNAFFI/svelte-dynamic-forms",
+	"homepage": "https://svelte-dynamic-forms.unaffi.com/",
 	"bugs": {
 		"url": "https://github.com/UNAFFI/svelte-dynamic-forms/issues"
 	},
