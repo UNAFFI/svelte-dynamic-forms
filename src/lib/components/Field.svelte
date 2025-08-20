@@ -97,13 +97,6 @@
 				console.warn(`${fieldtype}: "name" is missing, using ${fieldtype}`);
 				if (fieldtype) name = fieldtype;
 			}
-			// make sure the name has only letters, numbers and whitespace
-			const is_corrupted_name = /[^a-zA-Z0-9\s]/.test(name);
-			if (is_corrupted_name) {
-				throw new Error(
-					`${fieldtype}: "name" is corrupted. Please ensure only letters, numbers and whitespace are present.`
-				);
-			}
 
 			// set field_id
 			const parent_field_id = rest.parent_field_id;

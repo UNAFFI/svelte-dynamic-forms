@@ -2,12 +2,12 @@ import jsonata from 'jsonata';
 import Mustache from 'mustache';
 
 /**
- * @description Returns lowercase and replace whitespaces with single underscore and trim
+ * @description Returns lowercase and replaces anything other than letters and numbers with single underscore and trim
  * @param {string} [string] Unformatted string
  * @returns {string} Formatted string
  */
 export function stringToSnakeCase(string = '') {
-	return string.toLowerCase().trim().replace(/\s+/g, '_');
+	return string.toLowerCase().trim().replace(/[^a-z0-9]+/g, '_');
 }
 
 /**
@@ -85,11 +85,11 @@ export async function evaluateTemplate(template, context) {
 			});
 			result = Object.fromEntries(await Promise.all(promises));
 		} else if (typeof template === 'string') {
-			// get the templating key from the start of the template (if any). The templating key is inside two square brackets like [[jsonata]] = templating language - jsonata
-			const templating_key = template.match(/\[\[(.*?)\]\]/)?.[1];
+			// get the templating key from the start of the template (if any). The templating key must be at the start of the template inside two square brackets like [[jsonata]] = templating language - jsonata
+			const templating_key = template.match(/^\[\[(.*?)\]\]/)?.[1];
 
 			if (templating_key === 'jsonata') {
-				const template_part = template.match(/\[\[jsonata\]\](.*)/)?.[1] ?? '';
+				const template_part = template.match(/^\[\[jsonata\]\](.*)/)?.[1] ?? '';
 				result = await jsonata(template_part).evaluate(context);
 					} else {
 						const renderer = /** @type {any} */ (Mustache)?.render;
