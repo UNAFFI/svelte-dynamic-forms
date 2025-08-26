@@ -12,7 +12,7 @@
 	const handleDependencyChangeDebounced = debounce(handleDependencyChange, 300);
 
 	// get context
-	const settings = getContext(SETTINGS);
+	const form_settings = getContext(SETTINGS);
 	const metadata = getContext(METADATA);
 	const data = getContext(DATA);
 	const context = getContext(CONTEXT);
@@ -21,15 +21,31 @@
 
 	// set state
 	let DynamicComponent = $state();
+	let data_dependency_paths = $state();
 
 	// derived state
 	const evaluation_context = $derived({
 		context,
 		data,
 		metadata,
-		settings,
+		form_settings,
 		field_data,
 		field_metadata
+	});
+	const data_dependency_values = $derived.by(() => {
+		const result = [];
+		if (data_dependency_paths) {
+			for (let path of data_dependency_paths) {
+				let value = evaluation_context;
+				for (let part of path.split('.')) {
+					if (!value) break;
+					// @ts-ignore
+					value = value[part];
+				}
+				result.push(value);
+			}
+		}
+		return result;
 	});
 	const dependency_values = $derived.by(() => {
 		const result = [];
@@ -48,6 +64,16 @@
 	});
 
 	// effects
+	$effect(() => {
+		data_dependency_values;
+
+		untrack(() => {
+			if (field_metadata) {
+				setFieldData();
+			}
+		});
+	});
+
 	$effect(() => {
 		dependency_values;
 
@@ -83,10 +109,16 @@
 		return field_id;
 	}
 
+	function setFieldData() {
+		console.log(field_metadata?.field_id + ': Data dependencies changed');
+		const level = data_dependency_values?.length - 1;
+		field_data = data_dependency_values[level];
+	}
+
 	async function initialize() {
 		try {
 			// check if this field is part of a form
-			const is_form = !!settings?.form_id;
+			const is_form = !!form_settings?.form_id;
 
 			// set fieldtype
 			const fieldtype = await evaluateTemplate(rest?.fieldtype, evaluation_context);
@@ -160,7 +192,7 @@
 			const default_value = await evaluateTemplate(rest.default_value, evaluation_context);
 
 			// set settings
-			const field_settings = await evaluateTemplate(rest.settings, evaluation_context);
+			const field_settings = rest.settings;
 
 			// set dynamic_settings
 			const dynamic_settings = rest.dynamic_settings;
@@ -193,25 +225,28 @@
 				);
 			}
 
-			// set init_value and field_data
-			let current_step = is_form ? data : field_data;
+			// set data_dependency_paths
+			let current_step = is_form ? data : {};
 			if (!current_step) current_step = {};
+			let current_data_path = is_form ? 'data' : 'field_data';
+			const all_paths = [current_data_path];
+			const keys = data_path.split('.');
 			let init_value;
-			if (current_step !== undefined) {
-				const keys = data_path.split('.');
-				for (let i = 0; i < keys.length; i++) {
-					const is_last = i === keys.length - 1;
-					if (!is_last) {
-						if (!current_step[keys[i]]) {
-							current_step[keys[i]] = {};
-						}
-						current_step = current_step[keys[i]];
-					} else {
-						init_value = structuredClone($state.snapshot(current_step[keys[i]]));
-						field_data = current_step;
+			for (let i = 0; i < keys.length; i++) {
+				const is_last = i === keys.length - 1;
+				const key = keys[i];
+				current_data_path += `.${key}`;
+				if (!is_last) {
+					all_paths.push(current_data_path);
+					if (!current_step[key]) {
+						current_step[key] = {};
 					}
+					current_step = current_step[key];
+				} else {
+					init_value = structuredClone($state.snapshot(current_step[key]));
 				}
 			}
+			data_dependency_paths = all_paths;
 
 			// set field_metadata
 			field_metadata = {
@@ -344,8 +379,10 @@
 	}
 </script>
 
-{#if DynamicComponent && field_metadata?.conditions?.is_passed === true}
-	<div id="{settings?.form_id ? settings?.form_id + '-' : ''}{field_metadata.field_id}">
-		<DynamicComponent bind:field_metadata bind:field_data {settings} />
-	</div>
-{/if}
+{#key field_data}
+	{#if field_data && DynamicComponent && field_metadata?.conditions?.is_passed === true}
+		<div id="{form_settings?.form_id ? form_settings?.form_id + '-' : ''}{field_metadata.field_id}">
+			<DynamicComponent bind:field_metadata bind:field_data {form_settings} />
+		</div>
+	{/if}
+{/key}

@@ -7,7 +7,10 @@ import Mustache from 'mustache';
  * @returns {string} Formatted string
  */
 export function stringToSnakeCase(string = '') {
-	return string.toLowerCase().trim().replace(/[^a-z0-9]+/g, '_');
+	return string
+		.toLowerCase()
+		.trim()
+		.replace(/[^a-z0-9/.]+/g, '_');
 }
 
 /**
@@ -25,11 +28,11 @@ export function randomId() {
  * @param {number} delay - The delay in milliseconds.
  * @returns {(...args: any[]) => Promise<T>} - A new function that debounces the execution of the original function.
  */
-export function debounce(func, delay) {
+export function debounce(func, delay, is_delayed = false) {
 	/**@type {number | NodeJS.Timeout} */
 	let timeout;
 	/**@type {boolean} */
-	let isFirstCall = true;
+	let isFirstCall = !is_delayed;
 
 	return function (...args) {
 		return new Promise((resolve) => {
@@ -46,7 +49,7 @@ export function debounce(func, delay) {
 
 				// Set timeout to reset the first call flag
 				timeout = setTimeout(() => {
-					isFirstCall = true;
+					isFirstCall = !is_delayed;
 				}, delay);
 				return;
 			}
@@ -57,7 +60,7 @@ export function debounce(func, delay) {
 				const result = await func(...args);
 				resolve(result);
 				// Reset first call flag after execution
-				isFirstCall = true;
+				isFirstCall = !is_delayed;
 			}, delay);
 		});
 	};
@@ -91,14 +94,14 @@ export async function evaluateTemplate(template, context) {
 			if (templating_key === 'jsonata') {
 				const template_part = template.match(/^\[\[jsonata\]\](.*)/)?.[1] ?? '';
 				result = await jsonata(template_part).evaluate(context);
-					} else {
-						const renderer = /** @type {any} */ (Mustache)?.render;
-						if (typeof renderer === 'function') {
-							result = renderer(template, context);
-						} else {
-							result = template;
-						}
-					}
+			} else {
+				const renderer = /** @type {any} */ (Mustache)?.render;
+				if (typeof renderer === 'function') {
+					result = renderer(template, context);
+				} else {
+					result = template;
+				}
+			}
 		} else {
 			result = template;
 		}

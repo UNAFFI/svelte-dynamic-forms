@@ -17,7 +17,7 @@
 		data = $bindable(),
 		default_values = {},
 		metadata = $bindable(),
-		settings = $bindable(),
+		form_settings = $bindable(),
 		// @ts-ignore
 		children
 	} = $props();
@@ -35,7 +35,7 @@
 		setContext(DATA, data);
 		setContext(DEFAULT_VALUES, default_values);
 		setContext(METADATA, metadata);
-		setContext(SETTINGS, settings);
+		setContext(SETTINGS, form_settings);
 
 		// set is_initialized
 		is_initialized = true;
@@ -45,27 +45,27 @@
 	function initForm() {
 		if (!data) data = {}; // ensure data is an object
 		metadata = {}; // reset metadata
-		settings = {
+		form_settings = {
 			form_id: form_id || 'form_' + randomId(),
 			validations: {}
 		}; // reset settings
-		settings.validations.is_show = Boolean(show_validation);
-		settings.validations.max_time = 5000;
-		settings.validations.check_interval = 100;
+		form_settings.validations.is_show = Boolean(show_validation);
+		form_settings.validations.max_time = 5000;
+		form_settings.validations.check_interval = 100;
 	}
 
 	async function checkValidation() {
-		if (!settings) return;
-		settings.validations.issues = [];
+		if (!form_settings) return;
+		form_settings.validations.issues = [];
 		// loop through every metadata key and make sure that it is both checked and valid
 		for (const field_id in metadata) {
 			const field_metadata = metadata[field_id];
 			if (field_metadata.dependencies_changed) {
-				settings.validations.is_failed = true;
+				form_settings.validations.is_failed = true;
 				break;
 			} else {
 				if (!field_metadata.validations.is_valid) {
-					settings.validations.issues.push({
+					form_settings.validations.issues.push({
 						field_id,
 						error_message: field_metadata.validations.error_message
 					});
@@ -73,17 +73,17 @@
 			}
 		}
 
-		if (settings.validations.is_failed) {
-			if (!settings.validations.is_timeout) {
+		if (form_settings.validations.is_failed) {
+			if (!form_settings.validations.is_timeout) {
 				await new Promise((resolve) => {
 					setTimeout(() => {
 						resolve(true);
-					}, settings?.validations?.check_interval);
+					}, form_settings?.validations?.check_interval);
 				});
 				return checkValidation();
 			}
 		} else {
-			settings.validations.is_valid = settings.validations.issues.length === 0;
+			form_settings.validations.is_valid = form_settings.validations.issues.length === 0;
 		}
 
 		return;
@@ -91,24 +91,24 @@
 
 	// This function is called from outside the form to enable pre-submit validation
 	export async function validate() {
-		if (!settings) return;
+		if (!form_settings) return;
 		const start_time = new Date().getTime();
-		settings.validations.is_show = true;
-		settings.validations.is_valid = false;
-		settings.validations.is_failed = false;
-		settings.validations.is_timeout = false;
+		form_settings.validations.is_show = true;
+		form_settings.validations.is_valid = false;
+		form_settings.validations.is_failed = false;
+		form_settings.validations.is_timeout = false;
 
 		const timeout = setTimeout(() => {
-			if (!settings) return;
-			settings.validations.is_timeout = true;
-		}, settings?.validations?.max_time);
+			if (!form_settings) return;
+			form_settings.validations.is_timeout = true;
+		}, form_settings?.validations?.max_time);
 
 		await checkValidation();
 
-		if (!settings.validations.is_timeout) {
+		if (!form_settings.validations.is_timeout) {
 			clearTimeout(timeout);
 			const end_time = new Date().getTime();
-			settings.validations.duration = end_time - start_time;
+			form_settings.validations.duration = end_time - start_time;
 		}
 
 		return;

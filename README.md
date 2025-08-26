@@ -245,7 +245,7 @@ Initial value for the field. Can be a static value or template expression that e
 
 #### `settings`
 
-Static field settings that are evaluated once when the field mounts. Use for configuration that doesn't need to change.
+Static field settings that are not evaluated at ever. Use for configuration that doesn't need to change.
 
 ```svelte
 <Field
@@ -513,7 +513,7 @@ Programmatically validate the entire form:
 <Form
 	bind:this={formComponent}
 	bind:data={formData}
-	bind:settings={formSettings}
+	bind:form_settings={formSettings}
 	{fields}
 	{components}
 />

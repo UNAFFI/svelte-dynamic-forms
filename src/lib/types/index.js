@@ -8,7 +8,7 @@
  * @property {object} [data] The form's data. The fields of the form will write to this value.
  * @property {Record<string, any>} [default_values] Map of fieldtype - default values.
  * @property {Record<string, FieldMetadata>} [metadata] Map of [field_id] - field metadata. This will be re-initialized when the form is mounted. Bind to the value to get insight about the form (e.g. read individual field validation results).
- * @property {FormSettings} [settings] Settings for the form. This will be re-initialized when the form is mounted. Bind to the value to get insight about the form (e.g. read form validation results).
+ * @property {FormSettings} [form_settings] Settings for the form. This will be re-initialized when the form is mounted. Bind to the value to get insight about the form (e.g. read form validation results).
  */
 
 /**
@@ -24,7 +24,7 @@
  * @property {FieldMetadata["definition"]["parent_data_path"]} [parent_data_path] The data_path of the parent field, if any.
  * @property {FieldMetadata["definition"]["data_path"] | string} [data_path] Where the field will write data. Can be an expression that will evaluate on field mount.
  * @property {FieldMetadata["definition"]["default_value"] | string} [default_value] Default value set by the field explicitly. Can be an expression that will evaluate on field mount.
- * @property {FieldMetadata["definition"]["settings"] | string} [settings] Any field settings that only get evaluated when the field mounts. Can be an expression that will evaluate on field mount.
+ * @property {FieldMetadata["definition"]["settings"] | string} [settings] Any static field settings that never get evaluated.
  * @property {FieldMetadata["definition"]["dynamic_settings"]} [dynamic_settings] Any field settings that get re-evaluated when dependencies change.
  * @property {FieldMetadata["definition"]["validations"]} [validations] The validations to apply to the field.
  * @property {FieldMetadata["definition"]["conditions"]} [conditions] The conditions to apply to the field.
@@ -59,7 +59,7 @@
  * @property {string} [definition.parent_data_path] The data_path of the parent field, if any.
  * @property {string} definition.data_path Where the field will write data
  * @property {any} [definition.default_value] Default value set by the field explicitly
- * @property {any} [definition.settings] Any field settings that only get evaluated when the field mounts
+ * @property {any} [definition.settings] Any static field settings that never get evaluated
  * @property {any} [definition.dynamic_settings] Any field settings that get re-evaluated every time the field dependencies change.
  * @property {{ expression: string, error_message: string }[]} [definition.validations] Array of validation definitions for the field. They are re-evaluated every time the dependencies changes and the result is stored in field_metadata.validations.
  * @property {{ expression: string }[]} [definition.conditions] Array of condition definitions for the field. They are re-evaluated every time the dependencies changes and the result is stored in field_metadata.conditions.
