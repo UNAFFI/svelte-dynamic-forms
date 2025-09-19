@@ -110,7 +110,6 @@
 	}
 
 	function setFieldData() {
-		console.log(field_metadata?.field_id + ': Data dependencies changed');
 		const level = data_dependency_values?.length - 1;
 		field_data = data_dependency_values[level];
 	}
@@ -126,7 +125,7 @@
 			// set name
 			let name = await evaluateTemplate(rest?.name, evaluation_context);
 			if (!name) {
-				console.warn(`${fieldtype}: "name" is missing, using ${fieldtype}`);
+				console.warn(`[SDF]: ${fieldtype}: "name" is missing, using ${fieldtype}`);
 				if (fieldtype) name = fieldtype;
 			}
 
@@ -174,7 +173,7 @@
 				data_path = stringToSnakeCase(data_path || name);
 			} else {
 				if (data_path) {
-					console.warn(`${field_id}: "data_path" can only be used in forms`);
+					console.warn(`[SDF]: ${field_id}: "data_path" can only be used in forms`);
 				}
 				data_path = stringToSnakeCase(name);
 			}
@@ -280,19 +279,18 @@
 					field_metadata.field_id = updated_field_id;
 					field_metadata.definition.name = name + updated_field_id.slice(field_id.length);
 					console.warn(
-						`${field_id}: "field_id" is not unique, using "${updated_field_id}" instead.`
+						`[SDF]: ${field_id}: "field_id" is not unique, using "${updated_field_id}" instead.`
 					);
 				}
 				metadata[field_metadata.field_id] = field_metadata;
 			}
 		} catch (err) {
-			console.error(err);
+			console.error(`[SDF]: ${err}`);
 		}
 	}
 
 	async function handleDependencyChange() {
 		if (!field_metadata) return;
-		console.log('Template dependencies changed for ', field_metadata?.field_id);
 
 		// dynamic_settings
 		if (field_metadata.definition.dynamic_settings) {

@@ -107,7 +107,7 @@ export async function evaluateTemplate(template, context) {
 		}
 		return result;
 	} catch (err) {
-		console.error(`Error interpolating template "${template}":`, err);
+		console.error(`[SDF]: Error interpolating template "${template}":`, err);
 	}
 	return;
 }

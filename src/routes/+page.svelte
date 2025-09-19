@@ -55,7 +55,7 @@
 			dependencies: ['field_data.email'],
 			validations: [
 				{
-					expression: '[[jsonata]]$match(field_data.email, /^[^@]+@[^@]+\.[^@]+$/)',
+					expression: '[[jsonata]]$match(field_data.email, /^[^@]+@[^@]+.[^@]+$/)',
 					error_message: 'Invalid email'
 				}
 			]
@@ -184,15 +184,12 @@
 		await formRef?.validate?.();
 	}
 
-	$effect(() => {
-		// dev insight in console for demo
-		console.debug(
-			'Form valid?',
-			form_settings?.validations?.is_valid,
-			'Issues:',
-			form_settings?.validations?.issues
-		);
-	});
+	$inspect(
+		'[SDF]: Form valid?',
+		form_settings?.validations?.is_valid,
+		'Issues:',
+		form_settings?.validations?.issues
+	).with(console.debug);
 </script>
 
 <section id="playground">
