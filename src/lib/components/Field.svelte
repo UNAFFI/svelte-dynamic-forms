@@ -156,9 +156,8 @@
 			 */
 			const corrupted_dependency = dependencies.find((dep) => typeof dep !== 'string');
 			if (corrupted_dependency) {
-				throw new Error(
-					`${field_id}: "dependencies" contains a corrupted dependency: ${corrupted_dependency}`
-				);
+				console.log('corrupted dependency:', corrupted_dependency);
+				throw new Error(`${field_id}: "dependencies" contains a corrupted dependency!`);
 			}
 
 			// set keep_data_on_conditions_failed
@@ -206,9 +205,8 @@
 				(v) => typeof v.expression !== 'string' || typeof v.error_message !== 'string'
 			);
 			if (corrupted_validation) {
-				throw new Error(
-					`${field_id}: "validations" contains a corrupted validation: ${corrupted_validation}`
-				);
+				console.log('corrupted validation:', corrupted_validation);
+				throw new Error(`${field_id}: "validations" contains a corrupted validation!`);
 			}
 
 			// set conditions
@@ -219,9 +217,8 @@
 			}
 			const corrupted_condition = conditions.find((c) => typeof c.expression !== 'string');
 			if (corrupted_condition) {
-				throw new Error(
-					`${field_id}: "conditions" contains a corrupted condition: ${corrupted_condition}`
-				);
+				console.log('corrupted condition:', corrupted_condition);
+				throw new Error(`${field_id}: "conditions" contains a corrupted condition!`);
 			}
 
 			// set data_dependency_paths
